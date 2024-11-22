@@ -6,17 +6,9 @@ My neovim setup, have been using it for a year now. It's mwaaah!!!
 
 [neovim](https://neovim.io/)
 
-## Install vim-plug
+## Install Nerd Font
 
-To manage plugins 
-[vim-plug](https://github.com/junegunn/vim-plug)
-
-## Install plugins
-
-```bash
-:PlugInstall
-:Mason
-```
+[Nerd Font](https://www.nerdfonts.com/font-downloads)
 
 ## Wakatime
 
