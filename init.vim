@@ -72,11 +72,21 @@ nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<CR>
 nnoremap <silent> <C-p> <cmd>lua vim.diagnostic.goto_prev()<CR>
 nnoremap <silent> <C-n> <cmd>lua vim.diagnostic.goto_next()<CR>
 
-" Markdow  preview 
+" Markdown preview 
 nmap <C-s> <Plug>MarkdownPreview
 nmap <M-s> <Plug>MarkdownPreviewStop
 nmap <C-p> <Plug>MarkdownPreviewToggle
 
+  " Format on save using Neoformat
+"autocmd BufWritePre * undojoin | Neoformat
+"
+autocmd BufWritePre *.js,*.ts,*.jsx,*.tsx,*.json,*.css,*.html undojoin | Neoformat
+let g:neoformat_enabled_js = ['prettier']
+let g:neoformat_enabled_ts = ['prettier']
+let g:neoformat_enabled_json = ['prettier']
+let g:neoformat_enabled_css = ['prettier']
+let g:neoformat_enabled_html = ['prettier']
+  
 " Plugin initialization
 call plug#begin('~/.local/share/nvim/plugged')
 Plug 'tpope/vim-sensible'
@@ -114,7 +124,7 @@ require("mason-lspconfig").setup({
     "rust_analyzer", 
     "gopls", 
     "ts_ls", 
-    "pyright", 
+    "pyright",
   }
 })
 
@@ -216,4 +226,3 @@ vim.diagnostic.config({
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
 EOF
-
