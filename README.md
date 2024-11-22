@@ -15,6 +15,7 @@ To manage plugins
 
 ```bash
 :PlugInstall
+:Mason
 ```
 
 ## Wakatime
