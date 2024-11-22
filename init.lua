@@ -283,7 +283,7 @@ vim.diagnostic.config({
 
 -- Auto format on save for specific languages
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = {'*.go', '*.rs', '*.ts', '*.tsx'},
+  pattern = {'*.go', '*.rs', '*.ts', '*.tsx', '*.js', '*.html', '*.json'},
   callback = function()
     vim.cmd('Neoformat')
   end
