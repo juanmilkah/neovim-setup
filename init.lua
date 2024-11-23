@@ -6,11 +6,14 @@ if not vim.loop.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",
     lazypath,
   })
 end
 vim.opt.rtp:prepend(lazypath)
+
+-- Define leader key before lazy setup
+vim.g.mapleader = ' '
 
 -- Configure plugins with lazy.nvim
 require("lazy").setup({
@@ -39,18 +42,92 @@ require("lazy").setup({
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
+      -- Define on_attach function
+      local on_attach = function(client, bufnr)
+        local bufopts = { noremap = true, silent = true, buffer = bufnr }
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+        vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
+        vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, bufopts)
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+      end
+
+      -- Setup Mason
       require('mason').setup()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls' }
+        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols' }
       })
       
-      local lspconfig = require('lspconfig')
+      -- Get LSP capabilities
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local lspconfig = require('lspconfig')
       
-      -- Setup language servers
-      lspconfig.rust_analyzer.setup { capabilities = capabilities }
-      lspconfig.gopls.setup { capabilities = capabilities }
-      lspconfig.ts_ls.setup { capabilities = capabilities }
+      -- Deno LSP setup
+      lspconfig.denols.setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+        root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
+        init_options = {
+          lint = true,
+          unstable = true,
+          suggest = {
+            imports = {
+              hosts = {
+                ["https://deno.land"] = true,
+                ["https://cdn.nest.land"] = true,
+                ["https://crux.land"] = true,
+              },
+            },
+          },
+        },
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "json" },
+      })
+
+      -- TypeScript LSP setup
+      lspconfig.ts_ls.setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json"),
+        single_file_support = false,
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
+      })
+
+      -- Rust LSP setup
+      lspconfig.rust_analyzer.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          ['rust-analyzer'] = {
+            checkOnSave = {
+              command = "clippy",
+            },
+            imports = {
+              granularity = {
+                group = "module",
+              },
+              prefix = "self",
+            },
+          }
+        }
+      })
+
+      -- Go LSP setup
+      lspconfig.gopls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+            },
+            staticcheck = true,
+            gofumpt = true,
+          },
+        },
+      })
     end
   },
   
@@ -92,44 +169,24 @@ require("lazy").setup({
   },
   
   -- Git integration
-{
-  'tpope/vim-fugitive',
   {
-    'lewis6991/gitsigns.nvim',
-    config = function()
-      require('gitsigns').setup({
-        signs = {
-          add          = { text = '+' },
-          change       = { text = '│' },
-          delete       = { text = '_' },
-          topdelete    = { text = '‾' },
-          changedelete = { text = '~' },
-          untracked    = { text = '┆' },
-        },
-        signcolumn = true,  -- Toggle with `:Gitsigns toggle_signs`
-        numhl      = false, -- Toggle with `:Gitsigns toggle_numhl`
-        linehl     = false, -- Toggle with `:Gitsigns toggle_linehl`
-        word_diff  = false, -- Toggle with `:Gitsigns toggle_word_diff`
-        watch_gitdir = {
-          interval = 1000,
-          follow_files = true
-        },
-        current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
-        sign_priority = 6,
-        update_debounce = 100,
-        status_formatter = nil, -- Use default
-        preview_config = {
-          -- Options passed to nvim_open_win
-          border = 'single',
-          style = 'minimal',
-          relative = 'cursor',
-          row = 0,
-          col = 1
-        },
-      })
-    end
-  }
-},
+    'tpope/vim-fugitive',
+    {
+      'lewis6991/gitsigns.nvim',
+      config = function()
+        require('gitsigns').setup({
+          signs = {
+            add          = { text = '+' },
+            change       = { text = '│' },
+            delete       = { text = '_' },
+            topdelete    = { text = '‾' },
+            changedelete = { text = '~' },
+            untracked    = { text = '┆' },
+          },
+        })
+      end
+    }
+  },
   
   -- Fuzzy Finder
   {
@@ -172,20 +229,19 @@ require("lazy").setup({
     end
   },
   
-  -- Themes
-{
-  'Shatur/neovim-ayu',
-  lazy = false,
-  priority = 1000,
-  config = function()
-    require('ayu').setup({
-      mirage = false,
-      overrides = {}
-    })
-    vim.cmd('colorscheme ayu-dark')
-  end
-}, 
-
+  -- Theme
+  {
+    'Shatur/neovim-ayu',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require('ayu').setup({
+        mirage = false,
+        overrides = {}
+      })
+      vim.cmd('colorscheme ayu-dark')
+    end
+  },
   
   -- Utilities
   {
@@ -213,94 +269,65 @@ require("lazy").setup({
     end
   },
   
-  -- Add Neoformat plugin for formatting
-{
-  'sbdchd/neoformat',
-  config = function()
-    -- Formatters for specific languages
-    vim.g.neoformat_enabled_go = {'gofumpt', 'goimports'}
-    vim.g.neoformat_enabled_rust = {'rustfmt'}
-    vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
-  end
-},
+  -- Formatter
+  {
+    'sbdchd/neoformat',
+    config = function()
+      vim.g.neoformat_enabled_go = {'gofumpt', 'goimports'}
+      vim.g.neoformat_enabled_rust = {'rustfmt'}
+      vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
+    end
+  },
   
   -- Wakatime
   'wakatime/vim-wakatime'
 })
 
--- Keymappings
-local keymap = vim.keymap.set
-local opts = { noremap = true, silent = true }
+-- General settings
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.smartindent = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.hlsearch = false
+vim.opt.updatetime = 250
+vim.opt.signcolumn = 'yes'
 
--- Leader key
-vim.g.mapleader = ' '
+-- Keymappings
+local opts = { noremap = true, silent = true }
 
 -- File navigation
-keymap('n', '<leader>ff', ':Telescope find_files<CR>', opts)
-keymap('n', '<leader>fg', ':Telescope live_grep<CR>', opts)
-keymap('n', '<leader>fb', ':Telescope buffers<CR>', opts)
+vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>', opts)
+vim.keymap.set('n', '<leader>fg', ':Telescope live_grep<CR>', opts)
+vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 
 -- File tree
-keymap('n', '<leader>e', ':NvimTreeToggle<CR>', opts)
+vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', opts)
 
 -- Buffer navigation
-keymap('n', '<leader>bn', ':bnext<CR>', opts)
-keymap('n', '<leader>bp', ':bprevious<CR>', opts)
-keymap('n', '<leader>bd', ':bdelete<CR>', opts)
+vim.keymap.set('n', '<leader>bn', ':bnext<CR>', opts)
+vim.keymap.set('n', '<leader>bp', ':bprevious<CR>', opts)
+vim.keymap.set('n', '<leader>bd', ':bdelete<CR>', opts)
 
--- LSP mappings
-keymap('n', 'gd', vim.lsp.buf.definition, opts)
-keymap('n', 'K', vim.lsp.buf.hover, opts)
-keymap('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-keymap('n', '<leader>rn', vim.lsp.buf.rename, opts)
+-- Quick commands
+vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
+vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
+vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
 
--- Diagnostic mappings
-keymap('n', '<leader>df', vim.diagnostic.open_float, opts)
-keymap('n', '[d', vim.diagnostic.goto_prev, opts)
-keymap('n', ']d', vim.diagnostic.goto_next, opts)
-
--- Terminal mappings
-keymap('n', '<leader>tt', ':terminal<CR>', opts)
-keymap('t', '<Esc>', '<C-\\><C-n>', opts)
-
--- Additional settings
-vim.opt.number = true           -- Show line numbers
-vim.opt.relativenumber = true   -- Show relative line numbers
-vim.opt.expandtab = true        -- Use spaces instead of tabs
-vim.opt.tabstop = 2             -- Number of spaces a tab counts for
-vim.opt.softtabstop = 2         -- Number of spaces to insert/delete when editing
-vim.opt.shiftwidth = 2          -- Number of spaces to use for each step of autoindent
-vim.opt.smartindent = true      -- Smart autoindenting when starting a new line
-
--- Existing keymappings
-local keymap = vim.keymap.set
-local opts = { noremap = true, silent = true }
-
--- Add or update write file mapping
-keymap('n', '<leader>w', ':w<CR>', opts)
-keymap('n', '<leader>x', ':wq<CR>', opts)
-
--- Existing and additional file-related mappings
-keymap('n', '<leader>q', ':q<CR>', opts)
-keymap('n', '<leader>e', ':e<CR>', opts)
-
--- Quick escape in insert mode (like your previous jj mapping)
-keymap('i', 'jj', '<Esc>', opts)
+-- Insert mode shortcuts
+vim.keymap.set('i', 'jj', '<Esc>', opts)
 
 -- Center screen after vertical movements
-keymap('n', 'j', 'jzz', opts)
-keymap('n', 'k', 'kzz', opts)
+vim.keymap.set('n', 'j', 'jzz', opts)
+vim.keymap.set('n', 'k', 'kzz', opts)
 
--- Auto-escape after new line (like your previous mapping)
-keymap('n', 'o', 'o<Esc>', opts)
-keymap('n', 'O', 'O<Esc>', opts)
-
--- Additional comfort settings
-vim.opt.ignorecase = true       -- Case-insensitive searching
-vim.opt.smartcase = true        -- Case-sensitive if mix case in search
-vim.opt.hlsearch = false        -- Don't highlight search results
-vim.opt.updatetime = 250        -- Faster update time
-vim.opt.signcolumn = 'yes'      -- Always show sign column
+-- Auto-escape after new line
+vim.keymap.set('n', 'o', 'o<Esc>', opts)
+vim.keymap.set('n', 'O', 'O<Esc>', opts)
 
 -- Diagnostic configuration
 vim.diagnostic.config({
@@ -314,10 +341,26 @@ vim.diagnostic.config({
   update_in_insert = false,
 })
 
--- Auto format on save for specific languages
+-- Format on save
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = {'*.go', '*.rs', '*.ts', '*.tsx', '*.js', '*.html', '*.json'},
+  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js'},
   callback = function()
+    vim.lsp.buf.format({ async = false })
     vim.cmd('Neoformat')
   end
+})
+
+-- Handle Deno vs Node projects
+vim.api.nvim_create_autocmd("BufRead", {
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+  callback = function(ctx)
+    local root = vim.fn.findfile("deno.json", ".;")
+    if root == "" then
+      root = vim.fn.findfile("deno.jsonc", ".;")
+    end
+    
+    if root ~= "" then
+      vim.cmd([[set filetype=denots]])
+    end
+  end,
 })
