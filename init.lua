@@ -58,7 +58,7 @@ require("lazy").setup({
       -- Setup Mason
       require('mason').setup()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols' }
+        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' }
       })
       
       -- Get LSP capabilities
@@ -128,8 +128,27 @@ require("lazy").setup({
           },
         },
       })
-    end
+  
+    lspconfig.pyright.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = {
+        python = {
+          analysis = {
+            typeCheckingMode = "basic",
+            diagnosticSeverityOverrides = {
+              reportUnknownMemberType = "none",
+              reportUnknownParameterType = "none",
+              reportUnknownVariableType = "none",
+              reportUnknownArgumentType = "none",
+            }
+          }
+      }
+    }
+  })
+  end
   },
+
   
   -- Autocompletion
   {
@@ -276,6 +295,7 @@ require("lazy").setup({
       vim.g.neoformat_enabled_go = {'gofumpt', 'goimports'}
       vim.g.neoformat_enabled_rust = {'rustfmt'}
       vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
+      vim.g.neoformat_enabled_python = {'black'}
     end
   },
   
@@ -343,7 +363,7 @@ vim.diagnostic.config({
 
 -- Format on save
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js'},
+  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py'},
   callback = function()
     vim.lsp.buf.format({ async = false })
     vim.cmd('Neoformat')
