@@ -14,6 +14,13 @@ My neovim setup, have been using it for a year now. It's mwaaah!!!
 
 Get [Wakatime Api Key](https://wakatime.com)
 
+## Setting up Typescript and Javascript
+
+```bash
+npm install -g prettier eslint eslint_d
+npm install -g typescript
+npm install -g typescript-language-server
+```
 
 ## License
 
