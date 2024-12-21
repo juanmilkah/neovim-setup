@@ -58,12 +58,22 @@ require("lazy").setup({
       -- Setup Mason
       require('mason').setup()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' }
+        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' , 'prettier'}
       })
       
       -- Get LSP capabilities
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
       local lspconfig = require('lspconfig')
+      -- Function to safely setup LSP servers
+      local function safe_setup(server_name, config)
+      local success, err = pcall(function()
+        lspconfig[server_name].setup(config)
+      end)
+      if not success then
+        -- Suppress error messages for missing language servers
+        vim.notify("LSP server " .. server_name .. " not found: " .. err, vim.log.levels.WARN, { title = "LSP Setup" })
+      end 
+      end
       
       -- Deno LSP setup
       lspconfig.denols.setup({
@@ -295,6 +305,8 @@ require("lazy").setup({
       vim.g.neoformat_enabled_go = {'gofumpt', 'goimports'}
       vim.g.neoformat_enabled_rust = {'rustfmt'}
       vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
+      vim.g.neoformat_enabled_javascript = {'prettier', 'eslint_d'}
+      vim.g.neoformat_enabled_html = {'prettier'}
       vim.g.neoformat_enabled_python = {'black'}
     end
   },
@@ -363,7 +375,7 @@ vim.diagnostic.config({
 
 -- Format on save
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py'},
+  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py', '*.html'},
   callback = function()
     vim.lsp.buf.format({ async = false })
     vim.cmd('Neoformat')
