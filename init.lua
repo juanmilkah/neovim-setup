@@ -373,6 +373,15 @@ vim.keymap.set('n', 'k', 'kzz', opts)
 vim.keymap.set('n', 'o', 'o<Esc>', opts)
 vim.keymap.set('n', 'O', 'O<Esc>', opts)
 
+local function create_new_file()
+  local new_file = vim.fn.input("New file: ")
+  if new_file ~= "" then
+    vim.cmd("edit " .. new_file)
+  end
+end
+
+vim.keymap.set("n", "<leader>nf", create_new_file, { desc = "Create new file" })
+
 -- Diagnostic configuration
 vim.diagnostic.config({
   virtual_text = { prefix = '● ' },
