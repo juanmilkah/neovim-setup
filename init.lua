@@ -26,7 +26,7 @@ require("lazy").setup({
     build = ':TSUpdate',
     config = function()
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { "c", "rust", "go", "typescript", "javascript", "lua", "vim", "vimdoc" },
+        ensure_installed = { "c", "rust", "go", "typescript", "javascript", "lua", "vim", "vimdoc", "svelte" },
         highlight = { enable = true },
         indent = { enable = true }
       }
@@ -58,7 +58,7 @@ require("lazy").setup({
       -- Setup Mason
       require('mason').setup()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' , 'prettier'}
+        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright'  }
       })
       
       -- Get LSP capabilities
@@ -311,6 +311,18 @@ require("lazy").setup({
     end
   },
   
+  -- markdown preview 
+  {
+  "iamcco/markdown-preview.nvim",
+  cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+  build = "cd app && yarn install",
+  init = function()
+    vim.g.mkdp_filetypes = { "markdown" }
+  end,
+  ft = { "markdown" },
+
+   },
+
   -- Wakatime
   'wakatime/vim-wakatime'
 })
@@ -396,3 +408,4 @@ vim.api.nvim_create_autocmd("BufRead", {
     end
   end,
 })
+
