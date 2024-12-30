@@ -312,18 +312,21 @@ require("lazy").setup({
   },
   
   -- markdown preview 
+  {"ellisonleao/glow.nvim", config = true, cmd = "Glow"},
+
   {
-  "iamcco/markdown-preview.nvim",
-  cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-  build = "cd app && yarn install",
-  init = function()
-    vim.g.mkdp_filetypes = { "markdown" }
-  end,
-  ft = { "markdown" },
+    "toppair/peek.nvim",
+    event = { "VeryLazy" },
+    build = "deno task --quiet build:fast",
+    config = function()
+        require("peek").setup()
+        vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
+        vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
+    end,
+},
 
-   },
-
-  -- Wakatime
+    --
+   -- Wakatime
   'wakatime/vim-wakatime'
 })
 
