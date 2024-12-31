@@ -306,14 +306,11 @@ require("lazy").setup({
       vim.g.neoformat_enabled_rust = {'rustfmt'}
       vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
       vim.g.neoformat_enabled_javascript = {'prettier', 'eslint_d'}
-      vim.g.neoformat_enabled_html = {'prettier'}
       vim.g.neoformat_enabled_python = {'black'}
     end
   },
   
   -- markdown preview 
-  {"ellisonleao/glow.nvim", config = true, cmd = "Glow"},
-
   {
     "toppair/peek.nvim",
     event = { "VeryLazy" },
@@ -364,6 +361,10 @@ vim.keymap.set('n', '<leader>bd', ':bdelete<CR>', opts)
 vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
 vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
 vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
+
+-- markdown preview 
+vim.keymap.set('n', '<leader>po', ':PeekOpen', opts)
+vim.keymap.set('n', '<leader>pc', ':PeekClose', opts)
 
 -- Insert mode shortcuts
 vim.keymap.set('i', 'jj', '<Esc>', opts)
