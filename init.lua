@@ -57,9 +57,10 @@ require("lazy").setup({
 
       -- Setup Mason
       require('mason').setup()
-      require('mason-lspconfig').setup({
-        ensure_installed = { 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright'  }
+    	require('mason-lspconfig').setup({
+      ensure_installed = { 'clangd', 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' }
       })
+ 
       
       -- Get LSP capabilities
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -75,6 +76,18 @@ require("lazy").setup({
       end 
       end
       
+        -- clangd 
+          lspconfig.clangd.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+      cmd = { "clangd", "--background-index", "--clang-tidy" },
+      init_options = {
+        clangdFileStatus = true,
+      },
+      filetypes = { "c", "cpp", "objc", "objcpp" },
+    })
+
+        
       -- Deno LSP setup
       lspconfig.denols.setup({
         on_attach = on_attach,
@@ -139,23 +152,6 @@ require("lazy").setup({
         },
       })
   
-    lspconfig.pyright.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = {
-        python = {
-          analysis = {
-            typeCheckingMode = "basic",
-            diagnosticSeverityOverrides = {
-              reportUnknownMemberType = "none",
-              reportUnknownParameterType = "none",
-              reportUnknownVariableType = "none",
-              reportUnknownArgumentType = "none",
-            }
-          }
-      }
-    }
-  })
   end
   },
 
@@ -290,14 +286,6 @@ require("lazy").setup({
     config = true
   },
   
-  -- Which Key
-  {
-    'folke/which-key.nvim',
-    config = function()
-      require('which-key').setup{}
-    end
-  },
-  
   -- Formatter
   {
     'sbdchd/neoformat',
@@ -307,6 +295,7 @@ require("lazy").setup({
       vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
       vim.g.neoformat_enabled_javascript = {'prettier', 'eslint_d'}
       vim.g.neoformat_enabled_python = {'black'}
+      vim.g.neoformat_enabled_c = {'clangd'}
     end
   },
   
@@ -340,6 +329,7 @@ vim.opt.smartcase = true
 vim.opt.hlsearch = false
 vim.opt.updatetime = 250
 vim.opt.signcolumn = 'yes'
+vim.opt.background = 'dark'
 
 -- Keymappings
 local opts = { noremap = true, silent = true }
@@ -384,6 +374,13 @@ local function create_new_file()
   end
 end
 
+local signs = { Error = "✗", Warn = "!", Hint = "➤", Info = "ℹ" }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+end
+
+
 vim.keymap.set("n", "<leader>nf", create_new_file, { desc = "Create new file" })
 
 -- Diagnostic configuration
@@ -400,7 +397,7 @@ vim.diagnostic.config({
 
 -- Format on save
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = {'*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py', '*.html'},
+  pattern = {'*.c', '*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py', '*.html'},
   callback = function()
     vim.lsp.buf.format({ async = false })
     vim.cmd('Neoformat')
