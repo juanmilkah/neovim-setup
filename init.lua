@@ -32,6 +32,28 @@ require("lazy").setup({
       }
     end
   },
+
+  { "nvim-neotest/nvim-nio" },
+
+  {
+  'rafamadriz/friendly-snippets',
+  dependencies = { 'L3MON4D3/LuaSnip' },
+},
+
+  {
+  'mfussenegger/nvim-dap',
+  dependencies = { 'rcarriga/nvim-dap-ui' },
+  config = function()
+    require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
+    require('dapui').setup()
+  end
+},
+{
+  'mfussenegger/nvim-dap-python',
+  dependencies = { 'mfussenegger/nvim-dap' },
+},
+
+
   
   -- LSP Configuration
   {
@@ -117,6 +139,22 @@ require("lazy").setup({
         single_file_support = false,
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
       })
+
+      -- python 
+      lspconfig.pyright.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "workspace",
+      },
+    },
+  },
+})
+
 
       -- Rust LSP setup
       lspconfig.rust_analyzer.setup({
@@ -418,4 +456,15 @@ vim.api.nvim_create_autocmd("BufRead", {
     end
   end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function()
+    vim.opt.expandtab = true
+    vim.opt.tabstop = 4
+    vim.opt.shiftwidth = 4
+    vim.opt.softtabstop = 4
+  end
+})
+
 
