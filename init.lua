@@ -17,9 +17,6 @@ vim.g.mapleader = ' '
 
 -- Configure plugins with lazy.nvim
 require("lazy").setup({
-  -- Essential plugins
-  'tpope/vim-sensible',
-  
   -- Treesitter for better syntax highlighting
   {
     'nvim-treesitter/nvim-treesitter', 
@@ -241,8 +238,6 @@ require("lazy").setup({
   
   -- Git integration
   {
-    'tpope/vim-fugitive',
-    {
       'lewis6991/gitsigns.nvim',
       config = function()
         require('gitsigns').setup({
@@ -256,7 +251,6 @@ require("lazy").setup({
           },
         })
       end
-    }
   },
   
   -- Fuzzy Finder
@@ -373,7 +367,7 @@ vim.opt.smartindent = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = false
-vim.opt.updatetime = 250
+vim.opt.updatetime = 0
 vim.opt.signcolumn = 'yes'
 vim.opt.background = 'dark'
 
