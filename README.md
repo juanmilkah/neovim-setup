@@ -1,7 +1,6 @@
 # My Neovim Set-Up 
 
-My neovim setup, have been using it for a year now. It's mwaaah!!!
-
+![Neovim Window](image.png)
 ## Install neovim
 
 [neovim](https://neovim.io/)
