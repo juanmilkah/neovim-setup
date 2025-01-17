@@ -34,6 +34,14 @@ require("lazy").setup({
   },
 
   { "nvim-neotest/nvim-nio" },
+  
+  -- Undo tree
+  {
+    'mbbill/undotree',
+    config = function()
+      vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', { noremap = true, silent = true })
+    end
+  },
 
   {
   'rafamadriz/friendly-snippets',
@@ -389,6 +397,8 @@ vim.keymap.set('n', '<leader>bd', ':bdelete<CR>', opts)
 vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
 vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
 vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
+-- map leader+y to copy to system clipboard in normal and visual mode
+vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { noremap = true, silent = true })
 
 -- markdown preview 
 vim.keymap.set('n', '<leader>po', ':PeekOpen', opts)
@@ -404,6 +414,9 @@ vim.keymap.set('n', 'k', 'kzz', opts)
 -- Auto-escape after new line
 vim.keymap.set('n', 'o', 'o<Esc>', opts)
 vim.keymap.set('n', 'O', 'O<Esc>', opts)
+
+-- Undo tree keymapping
+vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', opts)
 
 local function create_new_file()
   local new_file = vim.fn.input("New file: ")
@@ -467,4 +480,94 @@ vim.api.nvim_create_autocmd("FileType", {
   end
 })
 
+-- Function to create a floating terminal
+local function create_float_term()
+    -- Calculate dimensions
+    local width = math.floor(vim.o.columns * 0.8)
+    local height = math.floor(vim.o.lines * 0.8)
+    
+    -- Calculate starting position
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+    
+    -- Create the floating window
+    local opts = {
+        relative = 'editor',
+        row = row,
+        col = col,
+        width = width,
+        height = height,
+        style = 'minimal',
+        border = 'rounded'
+    }
+    
+    -- Create buffer for terminal
+    local buf = vim.api.nvim_create_buf(false, true)
+    local win = vim.api.nvim_open_win(buf, true, opts)
+    
+    -- Spawn terminal
+    vim.fn.termopen(vim.o.shell, {
+        on_exit = function()
+            vim.api.nvim_win_close(win, true)
+        end
+    })
+    
+    -- Enter insert mode
+    vim.cmd('startinsert')
+    
+    -- Add mappings for this terminal buffer
+    local opts_term = { buffer = buf, noremap = true, silent = true }
+    vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], opts_term)
+    vim.keymap.set('t', '<C-h>', [[<C-\><C-n><C-W>h]], opts_term)
+    vim.keymap.set('t', '<C-j>', [[<C-\><C-n><C-W>j]], opts_term)
+    vim.keymap.set('t', '<C-k>', [[<C-\><C-n><C-W>k]], opts_term)
+    vim.keymap.set('t', '<C-l>', [[<C-\><C-n><C-W>l]], opts_term)
+end
 
+-- Add the keymapping for the terminal
+vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = true, desc = "Toggle floating terminal" })-- Function to create a floating terminal
+local function create_float_term()
+    -- Calculate dimensions
+    local width = math.floor(vim.o.columns * 0.8)
+    local height = math.floor(vim.o.lines * 0.8)
+    
+    -- Calculate starting position
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+    
+    -- Create the floating window
+    local opts = {
+        relative = 'editor',
+        row = row,
+        col = col,
+        width = width,
+        height = height,
+        style = 'minimal',
+        border = 'rounded'
+    }
+    
+    -- Create buffer for terminal
+    local buf = vim.api.nvim_create_buf(false, true)
+    local win = vim.api.nvim_open_win(buf, true, opts)
+    
+    -- Spawn terminal
+    vim.fn.termopen(vim.o.shell, {
+        on_exit = function()
+            vim.api.nvim_win_close(win, true)
+        end
+    })
+    
+    -- Enter insert mode
+    vim.cmd('startinsert')
+    
+    -- Add mappings for this terminal buffer
+    local opts_term = { buffer = buf, noremap = true, silent = true }
+    vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], opts_term)
+    vim.keymap.set('t', '<C-h>', [[<C-\><C-n><C-W>h]], opts_term)
+    vim.keymap.set('t', '<C-j>', [[<C-\><C-n><C-W>j]], opts_term)
+    vim.keymap.set('t', '<C-k>', [[<C-\><C-n><C-W>k]], opts_term)
+    vim.keymap.set('t', '<C-l>', [[<C-\><C-n><C-W>l]], opts_term)
+end
+
+-- Add the keymapping for the terminal
+vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = true, desc = "Toggle floating terminal" })
