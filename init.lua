@@ -178,7 +178,7 @@ require("lazy").setup({
             },
           }
         }
-      })
+     })
 
       -- Go LSP setup
       lspconfig.gopls.setup({
@@ -294,20 +294,24 @@ require("lazy").setup({
     end
   },
   
-  -- Theme
+ -- Theme
   {
     'Shatur/neovim-ayu',
-    lazy = false,
+     lazy = false,
     priority = 1000,
-    config = function()
-      require('ayu').setup({
-        mirage = false,
-        overrides = {}
-      })
-      vim.cmd('colorscheme ayu-dark')
+   config = function()
+   require('ayu').setup({
+    mirage = false,
+     overrides = {
+           LineNr = { fg = "#964B00" },  -- brown
+        }
+     })
+     vim.cmd('colorscheme ayu-dark')
     end
-  },
-  
+   },
+  -- -- 
+  --
+  --
   -- Utilities
   {
     'windwp/nvim-autopairs',
@@ -356,6 +360,7 @@ require("lazy").setup({
   'wakatime/vim-wakatime'
 })
 
+
 -- General settings
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -367,10 +372,11 @@ vim.opt.smartindent = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = false
-vim.opt.updatetime = 0
+vim.opt.updatetime = 1
 vim.opt.signcolumn = 'yes'
 vim.opt.background = 'dark'
-
+vim.opt.termguicolors = true
+--
 -- Keymappings
 local opts = { noremap = true, silent = true }
 
@@ -392,7 +398,7 @@ vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
 vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
 vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
 -- map leader+y to copy to system clipboard in normal and visual mode
-vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
 -- markdown preview 
 vim.keymap.set('n', '<leader>po', ':PeekOpen', opts)
@@ -411,6 +417,8 @@ vim.keymap.set('n', 'O', 'O<Esc>', opts)
 
 -- Undo tree keymapping
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', opts)
+
+
 
 local function create_new_file()
   local new_file = vim.fn.input("New file: ")
@@ -477,8 +485,8 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Function to create a floating terminal
 local function create_float_term()
     -- Calculate dimensions
-    local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
+    local width = math.floor(vim.o.columns * 0.4)
+    local height = math.floor(vim.o.lines * 0.4)
     
     -- Calculate starting position
     local row = math.floor((vim.o.lines - height) / 2)
@@ -523,7 +531,7 @@ vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = 
 local function create_float_term()
     -- Calculate dimensions
     local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
+    local height = math.floor(vim.o.lines * 0.4)
     
     -- Calculate starting position
     local row = math.floor((vim.o.lines - height) / 2)
@@ -565,3 +573,4 @@ end
 
 -- Add the keymapping for the terminal
 vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = true, desc = "Toggle floating terminal" })
+
