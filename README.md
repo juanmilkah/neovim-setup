@@ -13,10 +13,14 @@
 
 Get [Wakatime Api Key](https://wakatime.com)
 
-## Installing Coc-LSPs
+## Setting up Typescript and Javascript
+
 ```bash
-:CocInstall coc-dart coc-pyright coc-rust-analyzer coc-tsserver coc-go coc-clangd
+npm install -g prettier eslint eslint_d
+npm install -g typescript
+npm install -g typescript-language-server
 ```
+
 ## License
 
 The project is licensed under the [MIT license](LICENSE)
