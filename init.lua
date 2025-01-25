@@ -59,146 +59,6 @@ require("lazy").setup({
 },
 
 
-  
-  -- LSP Configuration
-  {
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      'williamboman/mason.nvim',
-      'williamboman/mason-lspconfig.nvim',
-      'hrsh7th/cmp-nvim-lsp',
-    },
-    config = function()
-      -- Define on_attach function
-      local on_attach = function(client, bufnr)
-        local bufopts = { noremap = true, silent = true, buffer = bufnr }
-        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-        vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
-        vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, bufopts)
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-      end
-
-      -- Setup Mason
-      require('mason').setup()
-    	require('mason-lspconfig').setup({
-      ensure_installed = { 'clangd', 'rust_analyzer', 'gopls', 'ts_ls', 'denols', 'pyright' }
-      })
- 
-      
-      -- Get LSP capabilities
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-      local lspconfig = require('lspconfig')
-      -- Function to safely setup LSP servers
-      local function safe_setup(server_name, config)
-      local success, err = pcall(function()
-        lspconfig[server_name].setup(config)
-      end)
-      if not success then
-        -- Suppress error messages for missing language servers
-        vim.notify("LSP server " .. server_name .. " not found: " .. err, vim.log.levels.WARN, { title = "LSP Setup" })
-      end 
-      end
-      
-        -- clangd 
-          lspconfig.clangd.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-      cmd = { "clangd", "--background-index", "--clang-tidy" },
-      init_options = {
-        clangdFileStatus = true,
-      },
-      filetypes = { "c", "cpp", "objc", "objcpp" },
-    })
-
-        
-      -- Deno LSP setup
-      lspconfig.denols.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
-        init_options = {
-          lint = true,
-          unstable = true,
-          suggest = {
-            imports = {
-              hosts = {
-                ["https://deno.land"] = true,
-                ["https://cdn.nest.land"] = true,
-                ["https://crux.land"] = true,
-              },
-            },
-          },
-        },
-        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "json" },
-      })
-
-      -- TypeScript LSP setup
-      lspconfig.ts_ls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json"),
-        single_file_support = false,
-        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
-      })
-
-      -- python 
-      lspconfig.pyright.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-        diagnosticMode = "workspace",
-      },
-    },
-  },
-})
-
-
-      -- Rust LSP setup
-      lspconfig.rust_analyzer.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        settings = {
-          ['rust-analyzer'] = {
-            checkOnSave = {
-              command = "clippy",
-            },
-            imports = {
-              granularity = {
-                group = "module",
-              },
-              prefix = "self",
-            },
-          }
-        }
-     })
-
-      -- Go LSP setup
-      lspconfig.gopls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        settings = {
-          gopls = {
-            analyses = {
-              unusedparams = true,
-            },
-            staticcheck = true,
-            gofumpt = true,
-          },
-        },
-      })
-  
-  end
-  },
-
-  
   -- Autocompletion
   {
     'hrsh7th/nvim-cmp',
@@ -359,6 +219,126 @@ require("lazy").setup({
    -- Wakatime
   'wakatime/vim-wakatime',
 
+
+  
+  -- LSP Configuration
+  {
+    'neovim/nvim-lspconfig',
+    dependencies = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
+      'hrsh7th/cmp-nvim-lsp',
+    },
+    config = function()
+      -- Define on_attach function
+      local on_attach = function(client, bufnr)
+        local bufopts = { noremap = true, silent = true, buffer = bufnr }
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+        vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
+        vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, bufopts)
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+      end
+
+      -- Setup Mason
+      require('mason').setup()
+    	require('mason-lspconfig').setup({
+      ensure_installed = { 'clangd', 'rust_analyzer', 'gopls', 'ts_ls', 'lua_ls' }
+      })
+ 
+      
+      -- Get LSP capabilities
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local lspconfig = require('lspconfig')
+      -- Function to safely setup LSP servers
+      local function safe_setup(server_name, config)
+      local success, err = pcall(function()
+        lspconfig[server_name].setup(config)
+      end)
+      if not success then
+        -- Suppress error messages for missing language servers
+        vim.notify("LSP server " .. server_name .. " not found: " .. err, vim.log.levels.WARN, { title = "LSP Setup" })
+      end 
+      end
+      
+        -- clangd 
+          lspconfig.clangd.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+      cmd = { "clangd", "--background-index", "--clang-tidy" },
+      init_options = {
+        clangdFileStatus = true,
+      },
+      filetypes = { "c", "cpp", "objc", "objcpp" },
+    })
+
+        
+      -- TypeScript LSP setup
+      lspconfig.ts_ls.setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json"),
+        single_file_support = false,
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
+      })
+
+      -- python 
+      lspconfig.pyright.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "workspace",
+      },
+    },
+  },
+})
+
+
+      -- Rust LSP setup
+      lspconfig.rust_analyzer.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          ['rust-analyzer'] = {
+            checkOnSave = {
+              command = "clippy",
+            },
+            imports = {
+              granularity = {
+                group = "module",
+              },
+              prefix = "self",
+            },
+          }
+        }
+     })
+
+      -- Go LSP setup
+      lspconfig.gopls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+            },
+            staticcheck = true,
+            gofumpt = true,
+          },
+        },
+      })
+  
+  end
+  },
+
+  
 })
 
 
@@ -372,11 +352,13 @@ vim.opt.shiftwidth = 2
 vim.opt.smartindent = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.incsearch = true
 vim.opt.hlsearch = false
 vim.opt.updatetime = 1
 vim.opt.signcolumn = 'yes'
 vim.opt.background = 'dark'
 vim.opt.termguicolors = true
+
 --
 -- Keymappings
 local opts = { noremap = true, silent = true }
@@ -458,120 +440,23 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   end
 })
 
--- Handle Deno vs Node projects
-vim.api.nvim_create_autocmd("BufRead", {
-  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
-  callback = function(ctx)
-    local root = vim.fn.findfile("deno.json", ".;")
-    if root == "" then
-      root = vim.fn.findfile("deno.jsonc", ".;")
-    end
-    
-    if root ~= "" then
-      vim.cmd([[set filetype=denots]])
-    end
-  end,
-})
+-- Function to open a terminal in the bottom third of the screen
+function OpenTerminalBottomThird()
+    -- Calculate the height for the terminal window (1/3 of the screen)
+    local height = math.floor(vim.o.lines * 0.33)
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "python",
-  callback = function()
-    vim.opt.expandtab = true
-    vim.opt.tabstop = 4
-    vim.opt.shiftwidth = 4
-    vim.opt.softtabstop = 4
-  end
-})
---
- -- Function to create a floating terminal
- local function create_float_term()
-     -- Calculate dimensions
-     local width = math.floor(vim.o.columns * 0.4)
-     local height = math.floor(vim.o.lines * 0.4)
-     
-     -- Calculate starting position
-     local row = math.floor((vim.o.lines - height) / 2)
-     local col = math.floor((vim.o.columns - width) / 2)
-     
-     -- Create the floating window
-     local opts = {
-         relative = 'editor',
-         row = row,
-         col = col,
-         width = width,
-         height = height,
-         style = 'minimal',
-         border = 'rounded'
-     }
-     
-     -- Create buffer for terminal
-     local buf = vim.api.nvim_create_buf(false, true)
-     local win = vim.api.nvim_open_win(buf, true, opts)
-     
-     -- Spawn terminal
-     vim.fn.termopen(vim.o.shell, {
-         on_exit = function()
-             vim.api.nvim_win_close(win, true)
-         end
-     })
-     
-     -- Enter insert mode
-     vim.cmd('startinsert')
-     
-     -- Add mappings for this terminal buffer
-     local opts_term = { buffer = buf, noremap = true, silent = true }
-     vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], opts_term)
-     vim.keymap.set('t', '<C-h>', [[<C-\><C-n><C-W>h]], opts_term)
-     vim.keymap.set('t', '<C-j>', [[<C-\><C-n><C-W>j]], opts_term)
-     vim.keymap.set('t', '<C-k>', [[<C-\><C-n><C-W>k]], opts_term)
-     vim.keymap.set('t', '<C-l>', [[<C-\><C-n><C-W>l]], opts_term)
- end
+    -- Open a new terminal in a horizontal split
+    vim.cmd('botright split | resize ' .. height)
+    vim.cmd('term')
 
- -- Add the keymapping for the terminal
- vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = true, desc = "Toggle floating terminal" })-- Function to create a floating terminal
- local function create_float_term()
-     -- Calculate dimensions
-     local width = math.floor(vim.o.columns * 0.8)
-     local height = math.floor(vim.o.lines * 0.4)
-     
-     -- Calculate starting position
-     local row = math.floor((vim.o.lines - height) / 2)
-     local col = math.floor((vim.o.columns - width) / 2)
-     
-     -- Create the floating window
-     local opts = {
-         relative = 'editor',
-         row = row,
-         col = col,
-         width = width,
-         height = height,
-         style = 'minimal',
-         border = 'rounded'
-     }
-     
-     -- Create buffer for terminal
-     local buf = vim.api.nvim_create_buf(false, true)
-     local win = vim.api.nvim_open_win(buf, true, opts)
-     
-     -- Spawn terminal
-     vim.fn.termopen(vim.o.shell, {
-         on_exit = function()
-             vim.api.nvim_win_close(win, true)
-         end
-     })
-     
-     -- Enter insert mode
-     vim.cmd('startinsert')
-     
-     -- Add mappings for this terminal buffer
-     local opts_term = { buffer = buf, noremap = true, silent = true }
-     vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], opts_term)
-     vim.keymap.set('t', '<C-h>', [[<C-\><C-n><C-W>h]], opts_term)
-     vim.keymap.set('t', '<C-j>', [[<C-\><C-n><C-W>j]], opts_term)
-     vim.keymap.set('t', '<C-k>', [[<C-\><C-n><C-W>k]], opts_term)
-     vim.keymap.set('t', '<C-l>', [[<C-\><C-n><C-W>l]], opts_term)
- end
+      -- Disable line numbers in the terminal buffer
+    vim.api.nvim_win_set_option(0, 'number', false)
+    vim.api.nvim_win_set_option(0, 'relativenumber', false)
 
- -- Add the keymapping for the terminal
- vim.keymap.set('n', '<leader>tt', create_float_term, { noremap = true, silent = true, desc = "Toggle floating terminal" })
+    -- Enter insert mode in the terminal
+    vim.cmd('startinsert')
 
+end
+
+-- Map a key to open the terminal in the bottom third of the screen
+vim.api.nvim_set_keymap('n', '<leader>tt', ':lua OpenTerminalBottomThird()<CR>', { noremap = true, silent = true })
