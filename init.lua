@@ -19,7 +19,7 @@ vim.g.mapleader = ' '
 require("lazy").setup({
   -- Treesitter for better syntax highlighting
   {
-    'nvim-treesitter/nvim-treesitter', 
+    'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     config = function()
       require('nvim-treesitter.configs').setup {
@@ -31,7 +31,7 @@ require("lazy").setup({
   },
 
   { "nvim-neotest/nvim-nio" },
-  
+
   -- Undo tree
   {
     'mbbill/undotree',
@@ -41,23 +41,22 @@ require("lazy").setup({
   },
 
   {
-  'rafamadriz/friendly-snippets',
-  dependencies = { 'L3MON4D3/LuaSnip' },
-},
+    'rafamadriz/friendly-snippets',
+    dependencies = { 'L3MON4D3/LuaSnip' },
+  },
 
   {
-  'mfussenegger/nvim-dap',
-  dependencies = { 'rcarriga/nvim-dap-ui' },
-  config = function()
-    require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
-    require('dapui').setup()
-  end
-},
-{
-  'mfussenegger/nvim-dap-python',
-  dependencies = { 'mfussenegger/nvim-dap' },
-},
-
+    'mfussenegger/nvim-dap',
+    dependencies = { 'rcarriga/nvim-dap-ui' },
+    config = function()
+      require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
+      require('dapui').setup()
+    end
+  },
+  {
+    'mfussenegger/nvim-dap-python',
+    dependencies = { 'mfussenegger/nvim-dap' },
+  },
 
   -- Autocompletion
   {
@@ -72,7 +71,7 @@ require("lazy").setup({
     config = function()
       local cmp = require('cmp')
       local luasnip = require('luasnip')
-      
+
       cmp.setup({
         snippet = {
           expand = function(args)
@@ -95,27 +94,36 @@ require("lazy").setup({
       })
     end
   },
-  
+
   -- Git integration
   {
-      'lewis6991/gitsigns.nvim',
-      config = function()
-        require('gitsigns').setup({
-          signs = {
-            add          = { text = '+' },
-            change       = { text = '│' },
-            delete       = { text = '_' },
-            topdelete    = { text = '‾' },
-            changedelete = { text = '~' },
-            untracked    = { text = '┆' },
-          },
-        })
-      end
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup({
+        signs = {
+          add          = { text = '+' },
+          change       = { text = '│' },
+          delete       = { text = '_' },
+          topdelete    = { text = '‾' },
+          changedelete = { text = '~' },
+          untracked    = { text = '┆' },
+        },
+      })
+    end
   },
-  
+
+  {
+    'tpope/vim-fugitive',
+    config = function()
+      vim.keymap.set('n', '<leader>gs', ':Git<CR>', { noremap = true, silent = true }) -- Git status
+      vim.keymap.set('n', '<leader>gc', ':Git commit<CR>', { noremap = true, silent = true }) -- Git commit
+      vim.keymap.set('n', '<leader>gp', ':Git push<CR>', { noremap = true, silent = true }) -- Git push
+    end
+  },
+
   -- Fuzzy Finder
   {
-    'nvim-telescope/telescope.nvim', 
+    'nvim-telescope/telescope.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('telescope').setup{
@@ -125,7 +133,21 @@ require("lazy").setup({
       }
     end
   },
-  
+
+  {
+    'olimorris/persisted.nvim',
+    config = function()
+      require('persisted').setup({
+        save_dir = vim.fn.stdpath('data') .. '/sessions/', -- Directory to save sessions
+        silent = true, -- No notifications
+        autoload = true, -- Automatically load the last session
+        on_autoload_no_session = function()
+          vim.notify('No session to load.')
+        end,
+      })
+    end
+  },
+
   -- File Explorer
   {
     'nvim-tree/nvim-tree.lua',
@@ -138,89 +160,104 @@ require("lazy").setup({
       })
     end
   },
-  
-  -- Status Line
-  {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      require('lualine').setup {
-        options = {
-          theme = 'auto',
-          component_separators = '|',
-          section_separators = { left = '', right = '' },
-        }
-      }
-    end
-  },
-  
- -- Theme
+
+  -- Theme
   {
     'Shatur/neovim-ayu',
-     lazy = false,
+    lazy = false,
     priority = 1000,
-   config = function()
-   require('ayu').setup({
-    mirage = false,
-     overrides = {
-           LineNr = { fg = "#964B00" },  -- brown
+    config = function()
+      require('ayu').setup({
+        mirage = false,
+        overrides = {
+          LineNr = { fg = "#654321" },  -- dark brown
         }
-     })
-     vim.cmd('colorscheme ayu-dark')
+      })
+      vim.cmd('colorscheme ayu-dark')
     end
-   },
-  -- -- 
-  --
-  --
+  },
+
   -- Utilities
   {
     'windwp/nvim-autopairs',
     event = "InsertEnter",
     config = true
   },
-  
+
   {
     'numToStr/Comment.nvim',
     config = true
   },
-  
+
   {
     'lukas-reineke/indent-blankline.nvim',
     main = 'ibl',
     config = true
   },
-  
+
   -- Formatter
   {
-    'sbdchd/neoformat',
+    'jose-elias-alvarez/null-ls.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
-      vim.g.neoformat_enabled_go = {'gofumpt', 'goimports'}
-      vim.g.neoformat_enabled_rust = {'rustfmt'}
-      vim.g.neoformat_enabled_typescript = {'prettier', 'eslint_d'}
-      vim.g.neoformat_enabled_javascript = {'prettier', 'eslint_d'}
-      vim.g.neoformat_enabled_python = {'black'}
-      vim.g.neoformat_enabled_c = {'clangd'}
+      local null_ls = require('null-ls')
+      null_ls.setup({
+        sources = {
+          null_ls.builtins.formatting.prettier, -- JavaScript/TypeScript
+          null_ls.builtins.formatting.black, -- Python
+          null_ls.builtins.formatting.gofmt, -- Go
+          null_ls.builtins.formatting.rustfmt, -- Rust
+          null_ls.builtins.formatting.clang_format, -- C/C++
+          null_ls.builtins.formatting.stylua, -- Lua
+        },
+      })
     end
   },
-  
-  -- markdown preview 
+
+  {
+    'glepnir/lspsaga.nvim',
+    config = function()
+      require('lspsaga').setup({
+        symbol_in_winbar = { enable = false },
+        lightbulb = { enable = false },
+      })
+    end
+  },
+
+  -- Markdown preview
   {
     "toppair/peek.nvim",
     event = { "VeryLazy" },
     build = "deno task --quiet build:fast",
     config = function()
-        require("peek").setup()
-        vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
-        vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
+      require("peek").setup()
+      vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
+      vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
     end,
+  },
+  
+  {
+    'goolord/alpha-nvim',
+    config = function()
+        local alpha = require('alpha')
+        local dashboard = require('alpha.themes.dashboard')
+        dashboard.section.header.val = {
+            "Welcome to Neovim!",
+        }
+        dashboard.section.buttons.val = {
+            dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+            dashboard.button("ff", "  Find file", ":Telescope find_files<CR>"),
+            dashboard.button("fg", "  Live grep", ":Telescope live_grep<CR>"),
+            dashboard.button("ss", "  Load session", ":PersistedLoad<CR>"),
+            dashboard.button("q", "  Quit", ":qa<CR>"),
+        }
+        alpha.setup(dashboard.config)
+    end
 },
 
-    --
-   -- Wakatime
-  'wakatime/vim-wakatime',
+  -- Wakatime
+  {'wakatime/vim-wakatime'},
 
-
-  
   -- LSP Configuration
   {
     'neovim/nvim-lspconfig',
@@ -245,37 +282,36 @@ require("lazy").setup({
 
       -- Setup Mason
       require('mason').setup()
-    	require('mason-lspconfig').setup({
-      ensure_installed = { 'clangd', 'rust_analyzer', 'gopls', 'ts_ls', 'lua_ls' }
+      require('mason-lspconfig').setup({
+        ensure_installed = { 'clangd', 'rust_analyzer', 'gopls', 'ts_ls', 'lua_ls' }
       })
- 
-      
+
       -- Get LSP capabilities
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
       local lspconfig = require('lspconfig')
+
       -- Function to safely setup LSP servers
       local function safe_setup(server_name, config)
-      local success, err = pcall(function()
-        lspconfig[server_name].setup(config)
-      end)
-      if not success then
-        -- Suppress error messages for missing language servers
-        vim.notify("LSP server " .. server_name .. " not found: " .. err, vim.log.levels.WARN, { title = "LSP Setup" })
-      end 
+        local success, err = pcall(function()
+          lspconfig[server_name].setup(config)
+        end)
+        if not success then
+          -- Suppress error messages for missing language servers
+          vim.notify("LSP server " .. server_name .. " not found: " .. err, vim.log.levels.WARN, { title = "LSP Setup" })
+        end
       end
-      
-        -- clangd 
-          lspconfig.clangd.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-      cmd = { "clangd", "--background-index", "--clang-tidy" },
-      init_options = {
-        clangdFileStatus = true,
-      },
-      filetypes = { "c", "cpp", "objc", "objcpp" },
-    })
 
-        
+      -- clangd
+      lspconfig.clangd.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        cmd = { "clangd", "--background-index", "--clang-tidy" },
+        init_options = {
+          clangdFileStatus = true,
+        },
+        filetypes = { "c", "cpp", "objc", "objcpp" },
+      })
+
       -- TypeScript LSP setup
       lspconfig.ts_ls.setup({
         on_attach = on_attach,
@@ -285,21 +321,20 @@ require("lazy").setup({
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
       })
 
-      -- python 
+      -- Python
       lspconfig.pyright.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-        diagnosticMode = "workspace",
-      },
-    },
-  },
-})
-
+        on_attach = on_attach,
+        capabilities = capabilities,
+        settings = {
+          python = {
+            analysis = {
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              diagnosticMode = "workspace",
+            },
+          },
+        },
+      })
 
       -- Rust LSP setup
       lspconfig.rust_analyzer.setup({
@@ -318,7 +353,7 @@ require("lazy").setup({
             },
           }
         }
-     })
+      })
 
       -- Go LSP setup
       lspconfig.gopls.setup({
@@ -334,13 +369,9 @@ require("lazy").setup({
           },
         },
       })
-  
-  end
+    end
   },
-
-  
 })
-
 
 -- General settings
 vim.opt.number = true
@@ -359,7 +390,6 @@ vim.opt.signcolumn = 'yes'
 vim.opt.background = 'dark'
 vim.opt.termguicolors = true
 
---
 -- Keymappings
 local opts = { noremap = true, silent = true }
 
@@ -380,12 +410,11 @@ vim.keymap.set('n', '<leader>bd', ':bdelete<CR>', opts)
 vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
 vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
 vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
--- map leader+y to copy to system clipboard in normal and visual mode
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
--- markdown preview 
-vim.keymap.set('n', '<leader>po', ':PeekOpen', opts)
-vim.keymap.set('n', '<leader>pc', ':PeekClose', opts)
+-- Markdown preview
+vim.keymap.set('n', '<leader>po', ':PeekOpen<CR>', opts)
+vim.keymap.set('n', '<leader>pc', ':PeekClose<CR>', opts)
 
 -- Insert mode shortcuts
 vim.keymap.set('i', 'jj', '<Esc>', opts)
@@ -401,7 +430,20 @@ vim.keymap.set('n', 'O', 'O<Esc>', opts)
 -- Undo tree keymapping
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', opts)
 
+vim.keymap.set('n', '<leader>ss', ':PersistedSave<CR>', opts) -- Save session
+vim.keymap.set('n', '<leader>sl', ':PersistedLoad<CR>', opts) -- Load session
 
+vim.keymap.set('n', '<leader>db', ':lua require("dap").toggle_breakpoint()<CR>', opts)
+vim.keymap.set('n', '<leader>dc', ':lua require("dap").continue()<CR>', opts)
+vim.keymap.set('n', '<leader>do', ':lua require("dap").step_over()<CR>', opts)
+vim.keymap.set('n', '<leader>di', ':lua require("dap").step_into()<CR>', opts)
+vim.keymap.set('n', '<leader>du', ':lua require("dapui").toggle()<CR>', opts)
+
+-- Search and replace
+vim.keymap.set('n', '<leader>sr', ':%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>', opts)
+
+-- Spell check
+vim.keymap.set('n', '<leader>sc', ':set spell!<CR>', opts)
 
 local function create_new_file()
   local new_file = vim.fn.input("New file: ")
@@ -416,15 +458,14 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 
-
 vim.keymap.set("n", "<leader>nf", create_new_file, { desc = "Create new file" })
 
 -- Diagnostic configuration
 vim.diagnostic.config({
   virtual_text = { prefix = '● ' },
-  float = { 
-    source = 'always', 
-    border = 'rounded' 
+  float = {
+    source = 'always',
+    border = 'rounded'
   },
   signs = true,
   underline = true,
@@ -436,27 +477,31 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = {'*.c', '*.rs', '*.go', '*.ts', '*.tsx', '*.js' ,'*.py', '*.html'},
   callback = function()
     vim.lsp.buf.format({ async = false })
-    vim.cmd('Neoformat')
   end
 })
 
--- Function to open a terminal in the bottom third of the screen
 function OpenTerminalBottomThird()
-    -- Calculate the height for the terminal window (1/3 of the screen)
-    local height = math.floor(vim.o.lines * 0.33)
+  -- Check if a terminal buffer already exists
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_get_option(buf, 'buftype') == 'terminal' then
+      -- Switch to the existing terminal window
+      vim.cmd('botright split | resize ' .. math.floor(vim.o.lines * 0.33))
+      vim.cmd('buffer ' .. buf)
+      vim.cmd('startinsert')
+      return
+    end
+  end
 
-    -- Open a new terminal in a horizontal split
-    vim.cmd('botright split | resize ' .. height)
-    vim.cmd('term')
+  -- If no terminal buffer exists, create a new one
+  local height = math.floor(vim.o.lines * 0.33)
+  vim.cmd('botright split | resize ' .. height)
+  vim.cmd('term')
 
-      -- Disable line numbers in the terminal buffer
-    vim.api.nvim_win_set_option(0, 'number', false)
-    vim.api.nvim_win_set_option(0, 'relativenumber', false)
-
-    -- Enter insert mode in the terminal
-    vim.cmd('startinsert')
-
+  -- Disable line numbers and enter insert mode
+  vim.api.nvim_win_set_option(0, 'number', false)
+  vim.api.nvim_win_set_option(0, 'relativenumber', false)
+  vim.cmd('startinsert')
 end
 
--- Map a key to open the terminal in the bottom third of the screen
+-- Toggle terminal
 vim.api.nvim_set_keymap('n', '<leader>tt', ':lua OpenTerminalBottomThird()<CR>', { noremap = true, silent = true })
