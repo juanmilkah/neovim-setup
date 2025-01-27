@@ -32,6 +32,19 @@ require("lazy").setup({
 
   { "nvim-neotest/nvim-nio" },
 
+    {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        options = {
+          theme = 'auto',
+          component_separators = '|',
+          section_separators = { left = '', right = '' },
+        }
+      }
+    end
+  },
   -- Undo tree
   {
     'mbbill/undotree',
@@ -170,7 +183,7 @@ require("lazy").setup({
       require('ayu').setup({
         mirage = false,
         overrides = {
-          LineNr = { fg = "#654321" },  -- dark brown
+          LineNr = { fg = "#964B00" },  -- brown
         }
       })
       vim.cmd('colorscheme ayu-dark')
