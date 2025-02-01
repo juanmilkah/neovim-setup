@@ -60,6 +60,7 @@ require("lazy").setup({
 
   {
     'mfussenegger/nvim-dap',
+    event="VeryLazy",
     dependencies = { 'rcarriga/nvim-dap-ui' },
     config = function()
       require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
@@ -68,6 +69,7 @@ require("lazy").setup({
   },
   {
     'mfussenegger/nvim-dap-python',
+    event="VeryLazy",
     dependencies = { 'mfussenegger/nvim-dap' },
   },
 
@@ -164,6 +166,7 @@ require("lazy").setup({
   -- File Explorer
   {
     'nvim-tree/nvim-tree.lua',
+    event="VeryLazy",
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       require("nvim-tree").setup({
@@ -270,6 +273,30 @@ require("lazy").setup({
 
   -- Wakatime
   {'wakatime/vim-wakatime'},
+  
+  {
+  'simrat39/rust-tools.nvim',
+  config = function()
+    require('rust-tools').setup({
+      server = {
+        on_attach = on_attach,
+        settings = {
+          ['rust-analyzer'] = {
+            checkOnSave = {
+              command = "clippy",
+            },
+            imports = {
+              granularity = {
+                group = "module",
+              },
+              prefix = "self",
+            },
+          }
+        }
+      }
+    })
+  end
+},
 
   -- LSP Configuration
   {
