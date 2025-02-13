@@ -53,25 +53,26 @@ require("lazy").setup({
     end
   },
 
-  {
-    'rafamadriz/friendly-snippets',
-    dependencies = { 'L3MON4D3/LuaSnip' },
-  },
-
-  {
-    'mfussenegger/nvim-dap',
-    event="VeryLazy",
-    dependencies = { 'rcarriga/nvim-dap-ui' },
-    config = function()
-      require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
-      require('dapui').setup()
-    end
-  },
-  {
-    'mfussenegger/nvim-dap-python',
-    event="VeryLazy",
-    dependencies = { 'mfussenegger/nvim-dap' },
-  },
+{
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {
+        -- Use dots for indentation
+        indent = {
+            char = "⋅", -- You can use "⋅" (middle dot) or "." (regular dot)
+        },
+        -- Remove the underline
+        scope = {
+            show_start = false,
+            show_end = false,
+            highlight = "CursorColumn", -- Disable highlighting
+        },
+        -- Disable the underline globally
+        whitespace = {
+            highlight = "CursorColumn", -- Disable whitespace highlighting
+        },
+    },
+},
 
   -- Autocompletion
   {
@@ -205,12 +206,6 @@ require("lazy").setup({
     config = true
   },
 
-  {
-    'lukas-reineke/indent-blankline.nvim',
-    main = 'ibl',
-    config = true
-  },
-
   -- Formatter
   {
     'jose-elias-alvarez/null-ls.nvim',
@@ -220,7 +215,6 @@ require("lazy").setup({
       null_ls.setup({
         sources = {
           null_ls.builtins.formatting.prettier, -- JavaScript/TypeScript
-          null_ls.builtins.formatting.black, -- Python
           null_ls.builtins.formatting.gofmt, -- Go
           null_ls.builtins.formatting.rustfmt, -- Rust
           null_ls.builtins.formatting.clang_format, -- C/C++
@@ -240,35 +234,15 @@ require("lazy").setup({
     end
   },
 
-  -- Markdown preview
-  {
-    "toppair/peek.nvim",
-    event = { "VeryLazy" },
-    build = "deno task --quiet build:fast",
-    config = function()
-      require("peek").setup()
-      vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
-      vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
-    end,
-  },
-  
-  {
-    'goolord/alpha-nvim',
-    config = function()
-        local alpha = require('alpha')
-        local dashboard = require('alpha.themes.dashboard')
-        dashboard.section.header.val = {
-            "Welcome to Neovim!",
-        }
-        dashboard.section.buttons.val = {
-            dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-            dashboard.button("ff", "  Find file", ":Telescope find_files<CR>"),
-            dashboard.button("fg", "  Live grep", ":Telescope live_grep<CR>"),
-            dashboard.button("ss", "  Load session", ":PersistedLoad<CR>"),
-            dashboard.button("q", "  Quit", ":qa<CR>"),
-        }
-        alpha.setup(dashboard.config)
-    end
+  -- Markdown Preview
+{
+  "iamcco/markdown-preview.nvim",
+  cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+  build = "cd app && npm install",
+  init = function()
+    vim.g.mkdp_filetypes = { "markdown" }
+  end,
+  ft = { "markdown" },
 },
 
   -- Wakatime
@@ -361,21 +335,6 @@ require("lazy").setup({
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" },
       })
 
-      -- Python
-      lspconfig.pyright.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          python = {
-            analysis = {
-              autoSearchPaths = true,
-              useLibraryCodeForTypes = true,
-              diagnosticMode = "workspace",
-            },
-          },
-        },
-      })
-
       -- Rust LSP setup
       lspconfig.rust_analyzer.setup({
         capabilities = capabilities,
@@ -449,12 +408,10 @@ vim.keymap.set('n', '<leader>bd', ':bdelete<CR>', opts)
 -- Quick commands
 vim.keymap.set('n', '<leader>w', ':w<CR>', opts)
 vim.keymap.set('n', '<leader>q', ':q<CR>', opts)
-vim.keymap.set('n', '<leader>x', ':wq<CR>', opts)
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
 -- Markdown preview
-vim.keymap.set('n', '<leader>po', ':PeekOpen<CR>', opts)
-vim.keymap.set('n', '<leader>pc', ':PeekClose<CR>', opts)
+vim.keymap.set('n', '<leader>mm', ':MarkdownPreviewToggle<CR>', opts)
 
 -- Insert mode shortcuts
 vim.keymap.set('i', 'jj', '<Esc>', opts)
@@ -473,17 +430,10 @@ vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', opts)
 vim.keymap.set('n', '<leader>ss', ':PersistedSave<CR>', opts) -- Save session
 vim.keymap.set('n', '<leader>sl', ':PersistedLoad<CR>', opts) -- Load session
 
-vim.keymap.set('n', '<leader>db', ':lua require("dap").toggle_breakpoint()<CR>', opts)
-vim.keymap.set('n', '<leader>dc', ':lua require("dap").continue()<CR>', opts)
-vim.keymap.set('n', '<leader>do', ':lua require("dap").step_over()<CR>', opts)
-vim.keymap.set('n', '<leader>di', ':lua require("dap").step_into()<CR>', opts)
-vim.keymap.set('n', '<leader>du', ':lua require("dapui").toggle()<CR>', opts)
-
--- Search and replace
-vim.keymap.set('n', '<leader>sr', ':%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>', opts)
-
--- Spell check
-vim.keymap.set('n', '<leader>sc', ':set spell!<CR>', opts)
+-- Key mappings for LSP
+vim.api.nvim_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+vim.api.nvim_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+vim.api.nvim_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
 
 local function create_new_file()
   local new_file = vim.fn.input("New file: ")
