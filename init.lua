@@ -274,7 +274,6 @@ require("lazy").setup({
 					null_ls.builtins.formatting.prettier, -- JavaScript/TypeScript
 					null_ls.builtins.formatting.gofmt, -- Go
 					null_ls.builtins.formatting.rustfmt, -- Rust
-					null_ls.builtins.formatting.clang_format, -- C/C++
 					null_ls.builtins.formatting.stylua, -- Lua
 				},
 			})
@@ -354,7 +353,7 @@ require("lazy").setup({
 			-- Setup Mason
 			require("mason").setup()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "clangd", "rust_analyzer", "gopls", "ts_ls", "lua_ls" },
+				ensure_installed = { "rust_analyzer", "gopls", "ts_ls", "lua_ls" },
 			})
 
 			-- Get LSP capabilities
@@ -376,16 +375,6 @@ require("lazy").setup({
 				end
 			end
 
-			-- clangd
-			lspconfig.clangd.setup({
-				capabilities = capabilities,
-				on_attach = on_attach,
-				cmd = { "clangd", "--background-index", "--clang-tidy" },
-				init_options = {
-					clangdFileStatus = true,
-				},
-				filetypes = { "c", "cpp", "objc", "objcpp" },
-			})
 
 			-- TypeScript LSP setup
 			lspconfig.ts_ls.setup({
