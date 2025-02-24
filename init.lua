@@ -438,7 +438,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.incsearch = true
 vim.opt.hlsearch = false
-vim.opt.updatetime = 1
+vim.opt.updatetime = 300
 vim.opt.signcolumn = "yes"
 vim.opt.background = "dark"
 vim.opt.termguicolors = true
@@ -469,7 +469,7 @@ vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 vim.keymap.set("n", "<leader>mm", ":MarkdownPreviewToggle<CR>", opts)
 
 -- Insert mode shortcuts
-vim.keymap.set("i", "jj", "<Esc>", opts)
+vim.keymap.set("i", "jk", "<Esc>", opts)
 
 -- Center screen after vertical movements
 vim.keymap.set("n", "j", "jzz", opts)
@@ -484,6 +484,10 @@ vim.keymap.set("n", "<leader>u", ":UndotreeToggle<CR>", opts)
 
 vim.keymap.set("n", "<leader>ss", ":PersistedSave<CR>", opts) -- Save session
 vim.keymap.set("n", "<leader>sl", ":PersistedLoad<CR>", opts) -- Load session
+
+-- Visual Mode
+vim.keymap.set("v", "<", "<gv", opts) -- Indent left and stay in selection mode
+vim.keymap.set("v", ">", ">gv", opts) -- Indent right and stay in selection mode
 
 -- Key mappings for LSP
 vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
