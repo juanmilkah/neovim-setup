@@ -215,7 +215,6 @@ require("lazy").setup({
         silent = true,                                     -- No notifications
         autoload = true,                                   -- Automatically load the last session
         on_autoload_no_session = function()
-          vim.notify("No session to load.")
         end,
       })
     end,
@@ -335,7 +334,6 @@ require("lazy").setup({
     },
     dependencies = {
       "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
     },
   },
 
@@ -463,6 +461,7 @@ vim.keymap.set("n", "<leader>bd", ":bdelete<CR>", opts)
 -- Quick commands
 vim.keymap.set("n", "<leader>w", ":w<CR>", opts)
 vim.keymap.set("n", "<leader>q", ":q<CR>", opts)
+vim.keymap.set("n", "<leader>x", ":x<CR>", opts)
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
 -- Markdown preview
