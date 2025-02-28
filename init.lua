@@ -207,32 +207,32 @@ require("lazy").setup({
     end,
   },
 
-  {
-    "olimorris/persisted.nvim",
-    config = function()
-      require("persisted").setup({
-        save_dir = vim.fn.stdpath("data") .. "/sessions/", -- Directory to save sessions
-        silent = true,                                     -- No notifications
-        autoload = true,                                   -- Automatically load the last session
-        on_autoload_no_session = function()
-        end,
-      })
-    end,
-  },
+  -- {
+  --   "olimorris/persisted.nvim",
+  --   config = function()
+  --     require("persisted").setup({
+  --       save_dir = vim.fn.stdpath("data") .. "/sessions/", -- Directory to save sessions
+  --       silent = true,                                     -- No notifications
+  --       autoload = true,                                   -- Automatically load the last session
+  --       on_autoload_no_session = function()
+  --       end,
+  --     })
+  --   end,
+  -- },
 
   -- File Explorer
-  {
-    "nvim-tree/nvim-tree.lua",
-    event = "VeryLazy",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("nvim-tree").setup({
-        view = { width = 30 },
-        renderer = { group_empty = true },
-        filters = { dotfiles = false },
-      })
-    end,
-  },
+  -- {
+  --   "nvim-tree/nvim-tree.lua",
+  --   event = "VeryLazy",
+  --   dependencies = { "nvim-tree/nvim-web-devicons" },
+  --   config = function()
+  --     require("nvim-tree").setup({
+  --       view = { width = 20 },
+  --       renderer = { group_empty = true },
+  --       filters = { dotfiles = false },
+  --     })
+  --   end,
+  -- },
 
   -- Theme
   {
@@ -251,12 +251,6 @@ require("lazy").setup({
   },
 
   -- Utilities
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    config = true,
-  },
-
   {
     "numToStr/Comment.nvim",
     config = true,
