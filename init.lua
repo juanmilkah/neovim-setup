@@ -237,20 +237,22 @@ require("lazy").setup({
   },
 
   -- Theme
-  {
-    "Shatur/neovim-ayu",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("ayu").setup({
-        mirage = false,
-        overrides = {
-          LineNr = { fg = "#964B00" }, -- brown
-        },
-      })
-      vim.cmd("colorscheme ayu-dark")
-    end,
-  },
+  { "tallestlegacy/darcula.nvim" },
+  -- {
+  --   "Shatur/neovim-ayu",
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     require("ayu").setup({
+  --       mirage = false,
+  --       overrides = {
+  --         LineNr = { fg = "#964B00" }, -- brown
+  --       },
+  --     })
+  --     vim.cmd("colorscheme ayu-dark")
+  --   end,
+  -- },
+  --
 
   -- Utilities
   {
@@ -490,23 +492,29 @@ require("lazy").setup({
 
 
 -- General settings
-vim.opt.number = true
+vim.opt.number         = true
 vim.opt.relativenumber = true
-vim.opt.expandtab = true
-vim.opt.tabstop = 2
-vim.opt.softtabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.smartindent = true
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-vim.opt.incsearch = true
-vim.opt.hlsearch = false
-vim.opt.updatetime = 300
-vim.opt.signcolumn = "yes"
-vim.opt.background = "dark"
-vim.opt.termguicolors = true
-vim.g.have_nerd_font = true
-vim.opt.wrap = true
+vim.opt.expandtab      = true
+vim.opt.tabstop        = 2
+vim.opt.softtabstop    = 2
+vim.opt.shiftwidth     = 2
+vim.opt.smartindent    = true
+vim.opt.ignorecase     = true
+vim.opt.smartcase      = true
+vim.opt.incsearch      = true
+vim.opt.hlsearch       = false
+vim.opt.updatetime     = 250
+vim.opt.signcolumn     = "yes"
+vim.opt.background     = "dark"
+vim.opt.termguicolors  = true
+vim.g.have_nerd_font   = true
+vim.opt.wrap           = true
+vim.opt.listchars      = { tab = "→ ", trail = "·", nbsp = "␣" }
+vim.opt.fillchars      = { eob = " " } -- remove the ~ at end of buffer
+vim.opt.spelllang      = "en_us"
+vim.opt.completeopt    = "menu,menuone,noselect"
+vim.cmd("colorscheme darcula")
+
 
 -- Keymappings
 local opts = { noremap = true, silent = true }
@@ -535,14 +543,24 @@ vim.keymap.set("n", "<leader>mm", ":MarkdownPreviewToggle<CR>", opts)
 
 -- Insert mode shortcuts
 vim.keymap.set("i", "jk", "<Esc>", opts)
+vim.keymap.set("i", "kj", "<Esc>", opts)
 
--- Center screen after vertical movements
+-- Center cursor after vertical movements
 vim.keymap.set("n", "j", "jzz", opts)
 vim.keymap.set("n", "k", "kzz", opts)
+vim.keymap.set("n", "<C-d>", "<C-d>zz", opts)
+vim.keymap.set("n", "<C-u>", "<C-u>zz", opts)
+vim.keymap.set("n", "n", "nzzzv", opts)
 
 -- Auto-escape after new line
 vim.keymap.set("n", "o", "o<Esc>", opts)
 vim.keymap.set("n", "O", "O<Esc>", opts)
+
+-- Disable arrow keys in normal mode (encourage hjkl)
+vim.keymap.set("n", "<Up>", "<Nop>", opts)
+vim.keymap.set("n", "<Down>", "<Nop>", opts)
+vim.keymap.set("n", "<Left>", "<Nop>", opts)
+vim.keymap.set("n", "<Right>", "<Nop>", opts)
 
 -- Undo tree keymapping
 vim.keymap.set("n", "<leader>u", ":UndotreeToggle<CR>", opts)
