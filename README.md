@@ -1,6 +1,7 @@
-# My Neovim Set-Up 
+# My Neovim Set-Up
 
 ![Neovim Window](image.png)
+
 ## Install neovim
 
 [neovim](https://neovim.io/)
@@ -12,14 +13,6 @@
 ## Wakatime
 
 Get [Wakatime Api Key](https://wakatime.com)
-
-## Setting up Typescript and Javascript
-
-```bash
-npm install -g prettier eslint eslint_d
-npm install -g typescript
-npm install -g typescript-language-server
-```
 
 ## License
 
