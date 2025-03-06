@@ -23,7 +23,7 @@ require("lazy").setup({
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "c", "rust", "go", "typescript", "javascript", "lua", "vim", "vimdoc", "svelte" },
+        ensure_installed = { "c", "rust", "go", "kotlin", "typescript", "javascript", "lua", "vim", "vimdoc", "svelte" },
         highlight = { enable = true },
         indent = { enable = true },
       })
@@ -238,22 +238,7 @@ require("lazy").setup({
 
   -- Theme
   { "tallestlegacy/darcula.nvim" },
-  -- {
-  --   "Shatur/neovim-ayu",
-  --   lazy = false,
-  --   priority = 1000,
-  --   config = function()
-  --     require("ayu").setup({
-  --       mirage = false,
-  --       overrides = {
-  --         LineNr = { fg = "#964B00" }, -- brown
-  --       },
-  --     })
-  --     vim.cmd("colorscheme ayu-dark")
-  --   end,
-  -- },
-  --
-
+  ----------
   -- Utilities
   {
     "windwp/nvim-autopairs",
@@ -403,6 +388,12 @@ require("lazy").setup({
     },
   },
 
+  -- Syntax highlighting for Kotlin
+  {
+    "udalov/kotlin-vim",
+    ft = { "kotlin" },
+  },
+
   -- LSP Configuration
   {
     "neovim/nvim-lspconfig",
@@ -428,7 +419,7 @@ require("lazy").setup({
 
       require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = { "rust_analyzer", "gopls", "ts_ls", "lua_ls" },
+        ensure_installed = { "rust_analyzer", "gopls", "ts_ls", "lua_ls", "kotlin_language_server" },
       })
 
       require("mason-lspconfig").setup_handlers({
@@ -482,6 +473,40 @@ require("lazy").setup({
                 gofumpt = true,
               },
             },
+          })
+        end,
+        ["kotlin_language_server"] = function()
+          require("lspconfig").kotlin_language_server.setup({
+            on_attach = on_attach,
+            capabilities = capabilities,
+            settings = {
+              kotlin = {
+                compiler = {
+                  jvm = {
+                    target = "17" -- Target JVM version
+                  }
+                },
+                completion = {
+                  snippets = {
+                    enabled = true -- Enable code snippets in completion
+                  }
+                },
+                hints = {
+                  typeHints = true,      -- Show type hints
+                  parameterHints = true, -- Show parameter hints
+                  chainCallHints = true  -- Show hints for chained method calls
+                },
+                formatting = {
+                  enabled = true -- Enable code formatting
+                },
+                diagnostics = {
+                  enabled = true -- Enable diagnostics
+                },
+                references = {
+                  includeDecompiled = true -- Include decompiled sources in references
+                }
+              }
+            }
           })
         end,
       })
