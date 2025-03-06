@@ -1,6 +1,6 @@
 # My Neovim Set-Up
 
-![Neovim Window](image.png)
+![Neovim Window](screenshot.png)
 
 ## Install neovim
 
