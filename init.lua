@@ -118,7 +118,7 @@ require("lazy").setup({
     opts = {
       -- Use dots for indentation
       indent = {
-        char = "⋅", -- You can use "⋅" (middle dot) or "." (regular dot)
+        char = ".",
       },
       -- Remove the underline
       scope = {
@@ -329,51 +329,6 @@ require("lazy").setup({
   },
 
 
-  -- Floating diagnostics
-  {
-    "folke/trouble.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    cmd = { "Trouble", "TroubleToggle" },
-    opts = {
-      position = "bottom",
-      height = 10,
-      width = 50,
-      icons = true,
-      mode = "workspace_diagnostics",
-      fold_open = "",
-      fold_closed = "",
-      group = true,
-      padding = true,
-      action_keys = {
-        close = "q",
-        cancel = "<esc>",
-        refresh = "r",
-        jump = { "<cr>", "<tab>" },
-        open_split = { "<c-x>" },
-        open_vsplit = { "<c-v>" },
-        open_tab = { "<c-t>" },
-        jump_close = { "o" },
-        toggle_mode = "m",
-        toggle_preview = "P",
-        hover = "K",
-        preview = "p",
-        close_folds = { "zM", "zm" },
-        open_folds = { "zR", "zr" },
-        toggle_fold = { "zA", "za" },
-        previous = "k",
-        next = "j"
-      },
-    },
-    keys = {
-      { "<leader>xx", "<cmd>TroubleToggle<cr>",                       desc = "Toggle Trouble" },
-      { "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", desc = "Workspace Diagnostics" },
-      { "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>",  desc = "Document Diagnostics" },
-      { "<leader>xl", "<cmd>TroubleToggle loclist<cr>",               desc = "Location List" },
-      { "<leader>xq", "<cmd>TroubleToggle quickfix<cr>",              desc = "Quickfix List" },
-      { "gR",         "<cmd>TroubleToggle lsp_references<cr>",        desc = "LSP References" },
-    },
-  },
-
   -- Session management
   {
     "folke/persistence.nvim",
@@ -531,13 +486,13 @@ vim.opt.hlsearch       = false
 vim.opt.updatetime     = 250
 vim.opt.signcolumn     = "yes"
 vim.opt.background     = "dark"
-vim.opt.termguicolors  = true
+vim.opt.termguicolors  = false
 vim.g.have_nerd_font   = true
 vim.opt.wrap           = true
-vim.opt.listchars      = { tab = "→ ", trail = "·", nbsp = "␣" }
-vim.opt.fillchars      = { eob = " " } -- remove the ~ at end of buffer
-vim.opt.spelllang      = "en_us"
-vim.opt.completeopt    = "menu,menuone,noselect"
+-- vim.opt.listchars      = { tab = "→ ", trail = "·", nbsp = "␣" }
+-- vim.opt.fillchars      = { eob = " " } -- remove the ~ at end of buffer
+-- vim.opt.spelllang      = "en_us"
+-- vim.opt.completeopt    = "menu,menuone,noselect"
 vim.cmd("colorscheme darcula")
 
 
@@ -670,18 +625,7 @@ end
 
 vim.keymap.set("n", "<leader>nf", create_new_file, { desc = "Create new file" })
 
--- -- Diagnostic configuration
--- vim.diagnostic.config({
---   virtual_text = { prefix = "● " },
---   float = {
---     source = "always",
---     border = "rounded",
---   },
---   signs = true,
---   underline = true,
---   update_in_insert = false,
--- })
---
+
 -- Format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "*.c", "*.rs", "*.go", "*.ts", "*.tsx", "*.js", "*.py", "*.html" },
@@ -689,29 +633,3 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     vim.lsp.buf.format({ async = false })
   end,
 })
-
-function OpenTerminalBottomThird()
-  -- Check if a terminal buffer already exists
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
-      -- Switch to the existing terminal window
-      vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.33))
-      vim.cmd("buffer " .. buf)
-      vim.cmd("startinsert")
-      return
-    end
-  end
-
-  -- If no terminal buffer exists, create a new one
-  local height = math.floor(vim.o.lines * 0.33)
-  vim.cmd("botright split | resize " .. height)
-  vim.cmd("term")
-
-  -- Disable line numbers and enter insert mode
-  vim.api.nvim_win_set_option(0, "number", false)
-  vim.api.nvim_win_set_option(0, "relativenumber", false)
-  vim.cmd("startinsert")
-end
-
--- Toggle terminal
-vim.api.nvim_set_keymap("n", "<leader>tt", ":lua OpenTerminalBottomThird()<CR>", { noremap = true, silent = true })
