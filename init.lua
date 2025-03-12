@@ -15,12 +15,52 @@ vim.opt.rtp:prepend(lazypath)
 -- Define leader key before lazy setup
 vim.g.mapleader = " "
 
+-- Core settings (load early)
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.smartindent = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.incsearch = true
+vim.opt.hlsearch = false
+vim.opt.updatetime = 250
+vim.opt.signcolumn = "yes"
+vim.opt.background = "dark"
+vim.opt.termguicolors = false
+vim.g.have_nerd_font = true
+vim.opt.wrap = true
+vim.opt.hidden = true
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath("data") .. "/undofiles"
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 8
+
+-- LSP on_attach function (defined once for reuse)
+local on_attach = function(client, bufnr)
+  local bufopts = { noremap = true, silent = true, buffer = bufnr }
+  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+  vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
+  vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
+  vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
+end
+
 -- Configure plugins with lazy.nvim
 require("lazy").setup({
   -- Treesitter for better syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" }, -- Lazy load
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = { "c", "rust", "go", "kotlin", "typescript", "javascript", "lua", "vim", "vimdoc", "svelte" },
@@ -33,6 +73,7 @@ require("lazy").setup({
   -- Enhanced f/t motions
   {
     "ggandor/leap.nvim",
+    event = "VeryLazy", -- Defer loading
     config = function()
       require('leap').add_default_mappings()
     end,
@@ -41,22 +82,22 @@ require("lazy").setup({
   -- Surround text objects
   {
     "kylechui/nvim-surround",
-    event = "VeryLazy",
+    event = "VeryLazy", -- Defer loading
     config = true,
   },
 
   -- Better quickfix list
   {
     "kevinhwang91/nvim-bqf",
-    ft = "qf",
+    ft = "qf", -- Only load when quickfix is opened
     config = true,
   },
-
 
   { "nvim-neotest/nvim-nio" },
 
   {
     "nvim-lualine/lualine.nvim",
+    event = "VeryLazy", -- Defer loading
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("lualine").setup({
@@ -71,15 +112,16 @@ require("lazy").setup({
 
   {
     "j-hui/fidget.nvim",
+    event = "LspAttach", -- Only load when LSP attaches
     config = function()
       require("fidget").setup({
         text = {
-          spinner = "dots", -- Animation style
+          spinner = "dots",
         },
         window = {
-          relative = "win", -- Position relative to the window
-          blend = 0,        -- Fully opaque
-          zindex = 1,       -- Stacking order
+          relative = "win",
+          blend = 0,
+          zindex = 1,
         },
       })
     end,
@@ -88,19 +130,16 @@ require("lazy").setup({
   -- Undo tree
   {
     "mbbill/undotree",
-    config = function()
-      vim.keymap.set("n", "<leader>u", ":UndotreeToggle<CR>", { noremap = true, silent = true })
-    end,
+    cmd = "UndotreeToggle", -- Only load when command runs
+    keys = {
+      { "<leader>u", ":UndotreeToggle<CR>", noremap = true, silent = true, desc = "Toggle undotree" }
+    },
   },
 
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    },
+    opts = {},
     keys = {
       {
         "<leader>?",
@@ -115,20 +154,18 @@ require("lazy").setup({
   {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
+    event = "VeryLazy", -- Defer loading
     opts = {
-      -- Use dots for indentation
       indent = {
         char = ".",
       },
-      -- Remove the underline
       scope = {
         show_start = false,
         show_end = false,
-        highlight = "CursorColumn", -- Disable highlighting
+        highlight = "CursorColumn",
       },
-      -- Disable the underline globally
       whitespace = {
-        highlight = "CursorColumn", -- Disable whitespace highlighting
+        highlight = "CursorColumn",
       },
     },
   },
@@ -136,6 +173,7 @@ require("lazy").setup({
   -- Autocompletion
   {
     "hrsh7th/nvim-cmp",
+    event = "InsertEnter", -- Only load in insert mode
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
@@ -173,6 +211,7 @@ require("lazy").setup({
   -- Git integration
   {
     "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- Lazy load
     config = function()
       require("gitsigns").setup({
         signs = {
@@ -189,17 +228,24 @@ require("lazy").setup({
 
   {
     "tpope/vim-fugitive",
-    config = function()
-      vim.keymap.set("n", "<leader>gs", ":Git<CR>", { noremap = true, silent = true })        -- Git status
-      vim.keymap.set("n", "<leader>gc", ":Git commit<CR>", { noremap = true, silent = true }) -- Git commit
-      vim.keymap.set("n", "<leader>gp", ":Git push<CR>", { noremap = true, silent = true })   -- Git push
-    end,
+    cmd = { "Git", "Gstatus", "Gblame", "Gpush", "Gpull" }, -- Lazy load
+    keys = {
+      { "<leader>gs", ":Git<CR>",        noremap = true, silent = true, desc = "Git status" },
+      { "<leader>gc", ":Git commit<CR>", noremap = true, silent = true, desc = "Git commit" },
+      { "<leader>gp", ":Git push<CR>",   noremap = true, silent = true, desc = "Git push" },
+    },
   },
 
   -- Fuzzy Finder
   {
     "nvim-telescope/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = "Telescope", -- Lazy load
+    keys = {
+      { "<leader>ff", ":Telescope find_files<CR>", noremap = true, silent = true, desc = "Find files" },
+      { "<leader>fg", ":Telescope live_grep<CR>",  noremap = true, silent = true, desc = "Live grep" },
+      { "<leader>fb", ":Telescope buffers<CR>",    noremap = true, silent = true, desc = "Buffers" },
+    },
     config = function()
       require("telescope").setup({
         defaults = {
@@ -211,13 +257,13 @@ require("lazy").setup({
 
   {
     "olimorris/persisted.nvim",
+    event = "VimEnter", -- Load after Vim starts
     config = function()
       require("persisted").setup({
-        save_dir = vim.fn.stdpath("data") .. "/sessions/", -- Directory to save sessions
-        silent = true,                                     -- No notifications
-        autoload = true,                                   -- Automatically load the last session
-        on_autoload_no_session = function()
-        end,
+        save_dir = vim.fn.stdpath("data") .. "/sessions/",
+        silent = true,
+        autoload = true,
+        on_autoload_no_session = function() end,
       })
     end,
   },
@@ -225,7 +271,10 @@ require("lazy").setup({
   -- File Explorer
   {
     "nvim-tree/nvim-tree.lua",
-    event = "VeryLazy",
+    cmd = "NvimTreeToggle", -- Only load when toggled
+    keys = {
+      { "<leader>e", ":NvimTreeToggle<CR>", noremap = true, silent = true, desc = "Toggle file tree" }
+    },
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("nvim-tree").setup({
@@ -238,16 +287,17 @@ require("lazy").setup({
 
   -- Theme
   { "tallestlegacy/darcula.nvim" },
-  ----------
+
   -- Utilities
   {
     "windwp/nvim-autopairs",
-    event = "InsertEnter",
+    event = "InsertEnter", -- Only load in insert mode
     config = true,
   },
 
   {
     "numToStr/Comment.nvim",
+    event = "VeryLazy", -- Defer loading
     config = true,
   },
 
@@ -255,14 +305,15 @@ require("lazy").setup({
   {
     "jose-elias-alvarez/null-ls.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
+    event = { "BufReadPre", "BufNewFile" }, -- Lazy load
     config = function()
       local null_ls = require("null-ls")
       null_ls.setup({
         sources = {
-          null_ls.builtins.formatting.prettier, -- JavaScript/TypeScript
-          null_ls.builtins.formatting.gofmt,    -- Go
-          null_ls.builtins.formatting.rustfmt,  -- Rust
-          null_ls.builtins.formatting.stylua,   -- Lua
+          null_ls.builtins.formatting.prettier,
+          null_ls.builtins.formatting.gofmt,
+          null_ls.builtins.formatting.rustfmt,
+          null_ls.builtins.formatting.stylua,
         },
       })
     end,
@@ -270,6 +321,7 @@ require("lazy").setup({
 
   {
     "glepnir/lspsaga.nvim",
+    event = "LspAttach", -- Only load when LSP attaches
     config = function()
       require("lspsaga").setup({
         symbol_in_winbar = { enable = false },
@@ -281,7 +333,7 @@ require("lazy").setup({
   -- Markdown
   {
     "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" }, -- Lazy load
     ft = { "markdown" },
     build = function()
       vim.fn["mkdp#util#install"]()
@@ -292,14 +344,16 @@ require("lazy").setup({
   },
 
   -- Wakatime
-  { "wakatime/vim-wakatime" },
+  { "wakatime/vim-wakatime", event = "VeryLazy" }, -- Defer loading
 
   {
     "simrat39/rust-tools.nvim",
+    ft = "rust", -- Only load for Rust files
   },
 
   {
     "stevearc/conform.nvim",
+    event = { "BufWritePre" }, -- Load before saving
     config = function()
       require("conform").setup({
         formatters_by_ft = {
@@ -319,20 +373,17 @@ require("lazy").setup({
 
   {
     "folke/noice.nvim",
-    event = "VeryLazy",
-    opts = {
-      -- add any options here
-    },
+    event = "VeryLazy", -- Defer loading
+    opts = {},
     dependencies = {
       "MunifTanjim/nui.nvim",
     },
   },
 
-
   -- Session management
   {
     "folke/persistence.nvim",
-    event = "BufReadPre",
+    event = "BufReadPre", -- Load after reading a buffer
     opts = {
       options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" }
     },
@@ -346,30 +397,19 @@ require("lazy").setup({
   -- Syntax highlighting for Kotlin
   {
     "udalov/kotlin-vim",
-    ft = { "kotlin" },
+    ft = { "kotlin" }, -- Only load for Kotlin files
   },
 
   -- LSP Configuration
   {
     "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" }, -- Lazy load
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local on_attach = function(client, bufnr)
-        local bufopts = { noremap = true, silent = true, buffer = bufnr }
-        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-        vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
-        vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
-        vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-      end
-
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
       require("mason").setup()
@@ -438,27 +478,27 @@ require("lazy").setup({
               kotlin = {
                 compiler = {
                   jvm = {
-                    target = "17" -- Target JVM version
+                    target = "17"
                   }
                 },
                 completion = {
                   snippets = {
-                    enabled = true -- Enable code snippets in completion
+                    enabled = true
                   }
                 },
                 hints = {
-                  typeHints = true,      -- Show type hints
-                  parameterHints = true, -- Show parameter hints
-                  chainCallHints = true  -- Show hints for chained method calls
+                  typeHints = true,
+                  parameterHints = true,
+                  chainCallHints = true
                 },
                 formatting = {
-                  enabled = true -- Enable code formatting
+                  enabled = true
                 },
                 diagnostics = {
-                  enabled = true -- Enable diagnostics
+                  enabled = true
                 },
                 references = {
-                  includeDecompiled = true -- Include decompiled sources in references
+                  includeDecompiled = true
                 }
               }
             }
@@ -467,45 +507,15 @@ require("lazy").setup({
       })
     end,
   }
-
 })
 
-
--- General settings
-vim.opt.number         = true
-vim.opt.relativenumber = true
-vim.opt.expandtab      = true
-vim.opt.tabstop        = 2
-vim.opt.softtabstop    = 2
-vim.opt.shiftwidth     = 2
-vim.opt.smartindent    = true
-vim.opt.ignorecase     = true
-vim.opt.smartcase      = true
-vim.opt.incsearch      = true
-vim.opt.hlsearch       = false
-vim.opt.updatetime     = 250
-vim.opt.signcolumn     = "yes"
-vim.opt.background     = "dark"
-vim.opt.termguicolors  = false
-vim.g.have_nerd_font   = true
-vim.opt.wrap           = true
--- vim.opt.listchars      = { tab = "→ ", trail = "·", nbsp = "␣" }
--- vim.opt.fillchars      = { eob = " " } -- remove the ~ at end of buffer
--- vim.opt.spelllang      = "en_us"
--- vim.opt.completeopt    = "menu,menuone,noselect"
+-- Set colorscheme
 vim.cmd("colorscheme darcula")
-
 
 -- Keymappings
 local opts = { noremap = true, silent = true }
 
--- File navigation
-vim.keymap.set("n", "<leader>ff", ":Telescope find_files<CR>", opts)
-vim.keymap.set("n", "<leader>fg", ":Telescope live_grep<CR>", opts)
-vim.keymap.set("n", "<leader>fb", ":Telescope buffers<CR>", opts)
-
--- File tree
-vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", opts)
+-- File navigation (already handled via lazy keys)
 
 -- Buffer navigation
 vim.keymap.set("n", "<leader>bn", ":bnext<CR>", opts)
@@ -518,8 +528,7 @@ vim.keymap.set("n", "<leader>q", ":q<CR>", opts)
 vim.keymap.set("n", "<leader>x", ":x<CR>", opts)
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
--- Markdown preview
-vim.keymap.set("n", "<leader>mm", ":MarkdownPreviewToggle<CR>", opts)
+-- Markdown preview (already handled via lazy cmd)
 
 -- Insert mode shortcuts
 vim.keymap.set("i", "jk", "<Esc>", opts)
@@ -536,39 +545,19 @@ vim.keymap.set("n", "n", "nzzzv", opts)
 vim.keymap.set("n", "o", "o<Esc>", opts)
 vim.keymap.set("n", "O", "O<Esc>", opts)
 
--- Disable arrow keys in normal mode (encourage hjkl)
+-- Disable arrow keys in normal mode
 vim.keymap.set("n", "<Up>", "<Nop>", opts)
 vim.keymap.set("n", "<Down>", "<Nop>", opts)
 vim.keymap.set("n", "<Left>", "<Nop>", opts)
 vim.keymap.set("n", "<Right>", "<Nop>", opts)
 
--- Undo tree keymapping
-vim.keymap.set("n", "<leader>u", ":UndotreeToggle<CR>", opts)
-
-vim.keymap.set("n", "<leader>ss", ":PersistedSave<CR>", opts) -- Save session
-vim.keymap.set("n", "<leader>sl", ":PersistedLoad<CR>", opts) -- Load session
+-- Session management (already handled via lazy keys)
 
 -- Visual Mode
 vim.keymap.set("v", "<", "<gv", opts) -- Indent left and stay in selection mode
 vim.keymap.set("v", ">", ">gv", opts) -- Indent right and stay in selection mode
 
--- Key mappings for LSP
-vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-
--- Better terminal handling
-vim.opt.hidden = true
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-
--- Persistent undo
-vim.opt.undofile = true
-vim.opt.undodir = vim.fn.stdpath("data") .. "/undofiles"
-
--- Better scrolling
-vim.opt.scrolloff = 8
-vim.opt.sidescrolloff = 8
+-- Key mappings for LSP (handled in on_attach function)
 
 -- Better window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", opts)
@@ -598,18 +587,15 @@ vim.keymap.set("n", "<leader>cl", vim.lsp.codelens.run, { desc = "Code Lens" })
 
 -- Toggle relative line numbers
 function _G.toggle_relative_number()
-  if vim.wo.relativenumber then
-    vim.wo.relativenumber = false
-  else
-    vim.wo.relativenumber = true
-  end
+  vim.wo.relativenumber = not vim.wo.relativenumber
 end
 
 vim.keymap.set("n", "<leader>tr", ":lua toggle_relative_number()<CR>", opts)
 
--- Save and source current file (useful for configuration files)
+-- Save and source current file
 vim.keymap.set("n", "<leader>so", ":w<CR>:source %<CR>", opts)
 
+-- Create new file function
 local function create_new_file()
   local new_file = vim.fn.input("New file: ")
   if new_file ~= "" then
@@ -617,6 +603,7 @@ local function create_new_file()
   end
 end
 
+-- Set up diagnostic signs
 local signs = { Error = "✗", Warn = "!", Hint = "➤", Info = "ℹ" }
 for type, icon in pairs(signs) do
   local hl = "DiagnosticSign" .. type
@@ -624,7 +611,6 @@ for type, icon in pairs(signs) do
 end
 
 vim.keymap.set("n", "<leader>nf", create_new_file, { desc = "Create new file" })
-
 
 -- Format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
