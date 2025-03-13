@@ -40,6 +40,7 @@ vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undofiles"
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
+vim.opt.clipboard = "unnamedplus"
 
 -- LSP on_attach function (defined once for reuse)
 local on_attach = function(client, bufnr)
@@ -333,15 +334,14 @@ require("lazy").setup({
   -- Markdown
   {
     "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" }, -- Lazy load
-    ft = { "markdown" },
-    build = function()
-      vim.fn["mkdp#util#install"]()
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && npm install",
+    init = function()
+      vim.g.mkdp_filetypes = { "markdown" }
     end,
-    opts = {
-      mkdp_auto_start = 1,
-    },
+    ft = { "markdown" },
   },
+
 
   -- Wakatime
   { "wakatime/vim-wakatime", event = "VeryLazy" }, -- Defer loading
@@ -528,7 +528,6 @@ vim.keymap.set("n", "<leader>q", ":q<CR>", opts)
 vim.keymap.set("n", "<leader>x", ":x<CR>", opts)
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', opts)
 
--- Markdown preview (already handled via lazy cmd)
 
 -- Insert mode shortcuts
 vim.keymap.set("i", "jk", "<Esc>", opts)
@@ -584,6 +583,10 @@ vim.keymap.set("n", "<leader>nh", ":nohlsearch<CR>", opts)
 vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
 vim.keymap.set("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 vim.keymap.set("n", "<leader>cl", vim.lsp.codelens.run, { desc = "Code Lens" })
+
+-- Markdown preview
+
+vim.keymap.set("n", "<leader>mm", ":MarkdownPreviewToggle<CR>", opts)
 
 -- Toggle relative line numbers
 function _G.toggle_relative_number()
