@@ -27,7 +27,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.incsearch = true
 vim.opt.hlsearch = false
-vim.opt.updatetime = 250
+vim.opt.updatetime = 100
 vim.opt.signcolumn = "yes"
 vim.opt.background = "dark"
 vim.opt.termguicolors = false
@@ -44,6 +44,7 @@ vim.opt.clipboard = "unnamedplus"
 
 -- LSP on_attach function (defined once for reuse)
 local on_attach = function(client, bufnr)
+  -- client.server_capabilities.semanticTokensProvider = nil
   local bufopts = { noremap = true, silent = true, buffer = bufnr }
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
@@ -241,7 +242,7 @@ require("lazy").setup({
   {
     "nvim-telescope/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
-    cmd = "Telescope", -- Lazy load
+    -- cmd = "Telescope", -- Lazy load
     keys = {
       { "<leader>ff", ":Telescope find_files<CR>", noremap = true, silent = true, desc = "Find files" },
       { "<leader>fg", ":Telescope live_grep<CR>",  noremap = true, silent = true, desc = "Live grep" },
@@ -256,18 +257,18 @@ require("lazy").setup({
     end,
   },
 
-  {
-    "olimorris/persisted.nvim",
-    event = "VimEnter", -- Load after Vim starts
-    config = function()
-      require("persisted").setup({
-        save_dir = vim.fn.stdpath("data") .. "/sessions/",
-        silent = true,
-        autoload = true,
-        on_autoload_no_session = function() end,
-      })
-    end,
-  },
+  -- {
+  --   "olimorris/persisted.nvim",
+  --   event = "VimEnter", -- Load after Vim starts
+  --   config = function()
+  --     require("persisted").setup({
+  --       save_dir = vim.fn.stdpath("data") .. "/sessions/",
+  --       silent = true,
+  --       autoload = true,
+  --       on_autoload_no_session = function() end,
+  --     })
+  --   end,
+  -- },
 
   -- File Explorer
   {
@@ -381,19 +382,19 @@ require("lazy").setup({
   },
 
   -- Session management
-  {
-    "folke/persistence.nvim",
-    event = "BufReadPre", -- Load after reading a buffer
-    opts = {
-      options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" }
-    },
-    keys = {
-      { "<leader>ss", function() require("persistence").load() end,                desc = "Restore Session" },
-      { "<leader>sl", function() require("persistence").load({ last = true }) end, desc = "Restore Last Session" },
-      { "<leader>sd", function() require("persistence").stop() end,                desc = "Don't Save Current Session" },
-    },
-  },
-
+  -- {
+  --   "folke/persistence.nvim",
+  --   event = "BufReadPre", -- Load after reading a buffer
+  --   opts = {
+  --     options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" }
+  --   },
+  --   keys = {
+  --     { "<leader>ss", function() require("persistence").load() end,                desc = "Restore Session" },
+  --     { "<leader>sl", function() require("persistence").load({ last = true }) end, desc = "Restore Last Session" },
+  --     { "<leader>sd", function() require("persistence").stop() end,                desc = "Don't Save Current Session" },
+  --   },
+  -- },
+  --
   -- Syntax highlighting for Kotlin
   {
     "udalov/kotlin-vim",
@@ -403,7 +404,7 @@ require("lazy").setup({
   -- LSP Configuration
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" }, -- Lazy load
+    -- event = { "BufReadPre", "BufNewFile" }, -- Lazy load
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
@@ -441,15 +442,36 @@ require("lazy").setup({
               capabilities = capabilities,
               settings = {
                 ["rust-analyzer"] = {
+                  rustfmt = {
+                    overrideCommand = { "leptosfmt", "--stdin", "--rustfmt" },
+                  },
                   checkOnSave = {
                     command = "clippy",
+                    extraArgs = { "--no-deps" },
                   },
-                  imports = {
-                    granularity = {
-                      group = "module",
+                  cargo = {
+                    allFeatures = true,
+                    lodOutDirsFromCheck = true,
+                    runBuildScripts = true,
+                  },
+                  procMacro = {
+                    enabled = true,
+                    ignored = {
+                      ["leptos_macro"] = { "server" },
+                      ["async-trait"] = { "async_trait" },
+                      ["napi-derive"] = { "napi" },
+                      ["async-recursion"] = { "async_recursion" },
                     },
-                    prefix = "self",
                   },
+                  completion = {
+                    postfix = { enable = true }
+                  },
+                  -- imports = {
+                  --   granularity = {
+                  --     group = "module",
+                  --   },
+                  --   prefix = "self",
+                  -- },
                 },
               },
             },
